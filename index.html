@@ -598,7 +598,8 @@
             opacity: 0;
             visibility: hidden;
             transition: var(--transition);
-            padding-top: 5rem;
+            padding-top: 2rem;
+            overflow-y: auto;
         }
 
         .search-modal.open {
@@ -622,12 +623,14 @@
             display: flex;
             gap: 1rem;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .search-input-wrapper {
             flex: 1;
             display: flex;
             gap: 0.5rem;
+            min-width: 250px;
         }
 
         .search-input {
@@ -636,6 +639,7 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 1rem;
+            min-width: 150px;
         }
 
         .search-btn {
@@ -647,6 +651,8 @@
             cursor: pointer;
             font-weight: 500;
             transition: var(--transition);
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .search-btn:hover {
@@ -763,10 +769,12 @@
 
             .modal-content {
                 max-width: 95vw;
+                max-height: 95vh;
             }
 
             .search-modal-content {
                 max-width: 95vw;
+                max-height: 95vh;
             }
 
             .form-actions {
@@ -774,11 +782,61 @@
             }
 
             .search-header {
-                flex-direction: column;
+                flex-direction: row;
+                gap: 0.5rem;
+                flex-wrap: wrap;
+                padding: 1rem;
             }
 
             .search-input-wrapper {
+                flex-direction: row;
+                width: 100%;
+                gap: 0.5rem;
+            }
+
+            .search-input {
+                flex: 1;
+                min-width: 150px;
+            }
+
+            .search-btn {
+                flex: 0;
+                padding: 0.8rem 1rem;
+                white-space: nowrap;
+            }
+
+            .search-close-btn {
+                flex: 0;
+                align-self: center;
+            }
+
+            .modal-header {
+                flex-wrap: wrap;
+            }
+
+            .search-result-item {
+                margin-top: 0.5rem;
+            }
+
+            .item-actions {
                 flex-direction: column;
+            }
+
+            .action-btn {
+                width: 100%;
+            }
+
+            #searchUrlBtn {
+                padding: 0.8rem;
+                min-width: 44px;
+                height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .form-group {
+                margin-bottom: 1rem;
             }
         }
     </style>
@@ -844,11 +902,11 @@
                         </div>
                         <div class="form-group">
                             <label for="itemUrl" class="form-label">URL *</label>
-                            <div style="display: flex; gap: 0.5rem; align-items: flex-end;">
-                                <div style="flex: 1;">
-                                    <input type="url" id="itemUrl" class="form-input">
+                            <div style="display: flex; gap: 0.5rem; align-items: flex-end; width: 100%;">
+                                <div style="flex: 1; min-width: 0;">
+                                    <input type="url" id="itemUrl" class="form-input" style="width: 100%;">
                                 </div>
-                                <button type="button" id="searchUrlBtn" class="btn btn-secondary" style="flex: 0; margin-bottom: 0;">🔍</button>
+                                <button type="button" id="searchUrlBtn" class="btn btn-secondary" style="flex: 0 0 auto; margin-bottom: 0; padding: 0.8rem; min-width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">🔍</button>
                             </div>
                         </div>
                         <div class="form-group">
