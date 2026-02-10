@@ -1830,13 +1830,27 @@
 
         async function scanDirectoryForMedia(directoryHandle) {
             AppState.isScanning = true;
-            DOM.folderListContainer.innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Escaneando pasta e subpastas... Isso pode levar alguns segundos.</p></div>';
+            DOM.folderListContainer.innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Escaneando pasta... Isso pode levar alguns segundos.</p></div>';
             
             const mediaEntries = [];
             let processedCount = 0;
             
-            async function scanRecursive(handle) {
-                for await (const entry of handle.values()) {
+            try {
+                // Tentar obter o caminho real (nem todos os navegadores suportam isso)
+                let folderPath = directoryHandle.name;
+                let folderName = directoryHandle.name;
+                
+                // Em alguns navegadores podemos tentar obter mais informações
+                if (directoryHandle.queryPermission) {
+                    const permission = await directoryHandle.queryPermission({ mode: 'read' });
+                    if (permission === 'granted') {
+                        folderName = directoryHandle.name;
+                        AppState.selectedFolderHandle = directoryHandle;
+                    }
+                }
+                
+                // Escanear apenas a pasta raiz, sem recursão
+                for await (const entry of directoryHandle.values()) {
                     if (entry.kind === 'file') {
                         const fileName = entry.name.toLowerCase();
                         let fileType = null;
@@ -1856,57 +1870,36 @@
                         }
                         
                         processedCount++;
-                        // Atualizar progresso a cada 10 arquivos
                         if (processedCount % 10 === 0) {
                             DOM.folderListContainer.innerHTML = `
                                 <div class="loading">
                                     <div class="loading-spinner"></div>
-                                    <p>Escaneando pasta e subpastas... ${processedCount} arquivos processados</p>
+                                    <p>Escaneando pasta... ${processedCount} arquivos processados</p>
                                     <p><small>${mediaEntries.length} arquivos de mídia encontrados</small></p>
                                 </div>
                             `;
                         }
-                    } else if (entry.kind === 'directory') {
-                        await scanRecursive(entry);
                     }
                 }
-            }
-            
-            try {
-                // Tentar obter o caminho real (nem todos os navegadores suportam isso)
-                let folderPath = directoryHandle.name;
-                let folderName = directoryHandle.name;
-                
-                // Em alguns navegadores podemos tentar obter mais informações
-                if (directoryHandle.queryPermission) {
-                    const permission = await directoryHandle.queryPermission({ mode: 'read' });
-                    if (permission === 'granted') {
-                        folderName = directoryHandle.name;
-                        AppState.selectedFolderHandle = directoryHandle;
-                    }
-                }
-                
-                // Iniciar escaneamento recursivo
-                await scanRecursive(directoryHandle);
                 
                 // Atualizar progresso final
                 DOM.folderListContainer.innerHTML = `
                     <div class="loading">
                         <div class="loading-spinner"></div>
-                        <p>Escaneando pasta e subpastas... ${processedCount} arquivos processados</p>
+                        <p>Escaneando pasta... ${processedCount} arquivos processados</p>
                         <p><small>${mediaEntries.length} arquivos de mídia encontrados</small></p>
                     </div>
                 `;
                 
                 // Selecionar até 30 mídias aleatoriamente
-                let selectedMedia = mediaEntries;
-                if (selectedMedia.length > 30) {
-                    selectedMedia.sort(() => 0.5 - Math.random());
-                    selectedMedia = selectedMedia.slice(0, 30);
+                let selectedEntries = mediaEntries;
+                if (selectedEntries.length > 30) {
+                    selectedEntries.sort(() => 0.5 - Math.random());
+                    selectedEntries = selectedEntries.slice(0, 30);
                 }
                 
                 // Converter para formato final (sem fileObject para storage)
-                const mediaFiles = selectedMedia.map(entry => ({
+                const mediaFiles = selectedEntries.map(entry => ({
                     name: entry.name,
                     type: entry.type
                 }));
@@ -1922,8 +1915,9 @@
                 } else {
                     DOM.folderListContainer.innerHTML = `
                         <div class="status-message error">
-                            <strong>Nenhum arquivo de mídia encontrado.</strong><br>
+                            <strong>Nenhum arquivo de mídia encontrado na pasta raiz.</strong><br>
                             <small>
+                                Nota: Apenas arquivos na pasta principal são escaneados (sem subpastas).<br>
                                 Formatos suportados:<br>
                                 Áudio: MP3, WAV, OGG, FLAC, M4A, AAC, WMA<br>
                                 Vídeo: MP4, AVI, MKV, MOV, WMV, FLV, WEBM, M4V
@@ -1937,7 +1931,7 @@
                 console.error('Erro ao escanear pasta:', error);
                 DOM.folderListContainer.innerHTML = `
                     <div class="status-message error">
-                        Erro ao escanear pasta. A pasta pode ter muitos arquivos ou algum problema de permissão.
+                        Erro ao escanear pasta. Verifique se a pasta tem arquivos acessíveis ou tente outra pasta.
                     </div>
                 `;
                 AppState.selectedFolderFiles = [];
@@ -2275,14 +2269,15 @@
 
         async function loadMediaFilesForPlayback(directoryHandle, folderName) {
             AppState.isScanning = true;
-            DOM.fileList.innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Escaneando pasta e subpastas... Isso pode levar alguns segundos.</p></div>';
+            DOM.fileList.innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Escaneando pasta... Isso pode levar alguns segundos.</p></div>';
             updatePlayerControls(false);
             
             const mediaEntries = [];
             let processedCount = 0;
             
-            async function scanRecursive(handle) {
-                for await (const entry of handle.values()) {
+            try {
+                // Escanear apenas a pasta raiz, sem recursão
+                for await (const entry of directoryHandle.values()) {
                     if (entry.kind === 'file') {
                         const fileName = entry.name.toLowerCase();
                         let fileType = null;
@@ -2302,30 +2297,23 @@
                         }
                         
                         processedCount++;
-                        // Atualizar progresso a cada 10 arquivos
                         if (processedCount % 10 === 0) {
                             DOM.fileList.innerHTML = `
                                 <div class="loading">
                                     <div class="loading-spinner"></div>
-                                    <p>Escaneando pasta e subpastas... ${processedCount} arquivos processados</p>
+                                    <p>Escaneando pasta... ${processedCount} arquivos processados</p>
                                     <p><small>${mediaEntries.length} arquivos de mídia encontrados</small></p>
                                 </div>
                             `;
                         }
-                    } else if (entry.kind === 'directory') {
-                        await scanRecursive(entry);
                     }
                 }
-            }
-            
-            try {
-                await scanRecursive(directoryHandle);
                 
                 // Atualizar progresso final
                 DOM.fileList.innerHTML = `
                     <div class="loading">
                         <div class="loading-spinner"></div>
-                        <p>Escaneando pasta e subpastas... ${processedCount} arquivos processados</p>
+                        <p>Escaneando pasta... ${processedCount} arquivos processados</p>
                         <p><small>${mediaEntries.length} arquivos de mídia encontrados</small></p>
                     </div>
                 `;
@@ -2369,7 +2357,7 @@
                 } else {
                     DOM.fileList.innerHTML = `
                         <div class="status-message error">
-                            Nenhum arquivo de mídia encontrado nesta pasta.
+                            Nenhum arquivo de mídia encontrado na pasta raiz.
                         </div>
                     `;
                 }
@@ -2377,7 +2365,7 @@
                 console.error('Erro ao carregar arquivos:', error);
                 DOM.fileList.innerHTML = `
                     <div class="status-message error">
-                        Erro ao carregar arquivos da pasta.
+                        Erro ao carregar arquivos da pasta. Verifique permissões ou tente outra pasta.
                     </div>
                 `;
             } finally {
