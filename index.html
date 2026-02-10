@@ -1212,13 +1212,13 @@
     </div>
 
     <!-- Modal de seleção de pastas -->
-    <div class="folder-picker-modal" id="folderPickerModal">
-        <div class="folder-picker-content">
-            <div class="folder-picker-header">
+    <div class="modal" id="folderPickerModal">
+        <div class="modal-content">
+            <div class="modal-header">
                 <h2 class="modal-title">Selecionar Pasta de Mídias</h2>
                 <button class="close-btn" id="closeFolderPicker">&times;</button>
             </div>
-            <div class="folder-picker-body">
+            <div class="modal-body">
                 <div class="browser-instructions">
                     <strong>📁 Como funciona:</strong>
                     <p>Clique no botão abaixo para selecionar uma pasta do seu dispositivo. O navegador irá solicitar permissão para acessar a pasta.</p>
@@ -1232,7 +1232,7 @@
                     </div>
                 </div>
             </div>
-            <div class="folder-picker-actions">
+            <div class="form-actions">
                 <button type="button" class="btn btn-secondary" id="cancelFolderPicker">Cancelar</button>
                 <button type="button" class="btn btn-primary" id="confirmFolderPicker" disabled>Confirmar Seleção</button>
             </div>
@@ -1240,54 +1240,54 @@
     </div>
 
     <!-- Modal do Player de Mídia -->
-    <div class="media-player-modal" id="mediaPlayerModal">
-        <div class="player-header">
-            <h2 class="player-title" id="playerTitle">Reproduzindo Mídias</h2>
-            <button class="close-btn" id="closePlayerBtn">&times;</button>
-        </div>
-        
-        <div class="player-content">
-            <!-- Player de vídeo -->
-            <div class="video-player" id="videoPlayer">
-                <video controls id="videoElement">
-                    Seu navegador não suporta o elemento de vídeo.
-                </video>
+    <div class="modal" id="mediaPlayerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="playerTitle">Reproduzindo Mídias</h2>
+                <button class="close-btn" id="closePlayerBtn">&times;</button>
             </div>
-            
-            <!-- Player de áudio -->
-            <div class="audio-player" id="audioPlayer">
-                <audio controls id="audioElement">
-                    Seu navegador não suporta o elemento de áudio.
-                </audio>
-            </div>
-            
-            <!-- Lista de arquivos -->
-            <div class="file-list-container">
-                <div class="file-list-title">
-                    <span>Arquivos na Pasta</span>
-                    <span id="fileCount">0 arquivos</span>
+            <div class="modal-body">
+                <!-- Player de vídeo -->
+                <div class="video-player" id="videoPlayer" style="display: none;">
+                    <video controls id="videoElement">
+                        Seu navegador não suporta o elemento de vídeo.
+                    </video>
                 </div>
-                <div class="file-list" id="fileList">
-                    <div class="status-message info">
-                        Selecione uma pasta para carregar os arquivos...
+                
+                <!-- Player de áudio -->
+                <div class="audio-player" id="audioPlayer" style="display: none;">
+                    <audio controls id="audioElement">
+                        Seu navegador não suporta o elemento de áudio.
+                    </audio>
+                </div>
+                
+                <!-- Lista de arquivos -->
+                <div class="file-list-container">
+                    <div class="file-list-title">
+                        <span>Arquivos na Pasta</span>
+                        <span id="fileCount">0 arquivos</span>
+                    </div>
+                    <div class="file-list" id="fileList">
+                        <div class="status-message info">
+                            Selecione uma pasta para carregar os arquivos...
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="player-controls">
-            <button class="control-btn play-all" id="playAllBtn" disabled>
-                <span>▶️</span> Reproduzir Tudo
-            </button>
-            <button class="control-btn" id="prevBtn" disabled>
-                <span>⏮️</span> Anterior
-            </button>
-            <button class="control-btn" id="nextBtn" disabled>
-                <span>⏭️</span> Próximo
-            </button>
-            <button class="control-btn shuffle" id="shuffleBtn" disabled>
-                <span>🔀</span> Embaralhar
-            </button>
+            <div class="form-actions">
+                <button class="btn btn-primary play-all" id="playAllBtn" disabled>
+                    <span>▶️</span> Reproduzir Tudo
+                </button>
+                <button class="btn btn-primary" id="prevBtn" disabled>
+                    <span>⏮️</span> Anterior
+                </button>
+                <button class="btn btn-primary" id="nextBtn" disabled>
+                    <span>⏭️</span> Próximo
+                </button>
+                <button class="btn btn-primary shuffle" id="shuffleBtn" disabled>
+                    <span>🔀</span> Embaralhar
+                </button>
+            </div>
         </div>
     </div>
 
@@ -2253,7 +2253,7 @@
                         mode: 'read'
                     });
                     
-                    await loadMediaFilesForPlayback(directoryHandle, item.title);
+                    await loadMediaFilesForPlayback(directoryHandle, item);
                 } else {
                     alert('Funcionalidade não suportada no seu navegador. Use Chrome, Edge ou Opera.');
                 }
@@ -2267,80 +2267,65 @@
             }
         };
 
-        async function loadMediaFilesForPlayback(directoryHandle, folderName) {
+        async function loadMediaFilesForPlayback(directoryHandle, item) {
             AppState.isScanning = true;
             DOM.fileList.innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Escaneando pasta... Isso pode levar alguns segundos.</p></div>';
             updatePlayerControls(false);
             
-            const mediaEntries = [];
-            let processedCount = 0;
+            const mediaFiles = [];
             
             try {
-                // Escanear apenas a pasta raiz, sem recursão
-                for await (const entry of directoryHandle.values()) {
-                    if (entry.kind === 'file') {
-                        const fileName = entry.name.toLowerCase();
-                        let fileType = null;
-                        
-                        if (MEDIA_EXTENSIONS.audio.some(ext => fileName.endsWith(ext))) {
-                            fileType = 'audio';
-                        } else if (MEDIA_EXTENSIONS.video.some(ext => fileName.endsWith(ext))) {
-                            fileType = 'video';
-                        }
-                        
-                        if (fileType) {
-                            mediaEntries.push({
-                                handle: entry,
-                                name: entry.name,
-                                type: fileType
-                            });
-                        }
-                        
-                        processedCount++;
-                        if (processedCount % 10 === 0) {
-                            DOM.fileList.innerHTML = `
-                                <div class="loading">
-                                    <div class="loading-spinner"></div>
-                                    <p>Escaneando pasta... ${processedCount} arquivos processados</p>
-                                    <p><small>${mediaEntries.length} arquivos de mídia encontrados</small></p>
-                                </div>
-                            `;
+                const savedFiles = item.files || [];
+                const savedFileNames = new Set(savedFiles.map(f => f.name.toLowerCase()));
+                
+                let foundCount = 0;
+                let processedCount = 0;
+                
+                async function scanRecursive(handle) {
+                    for await (const entry of handle.values()) {
+                        if (entry.kind === 'file') {
+                            const fileName = entry.name.toLowerCase();
+                            let fileType = null;
+                            
+                            if (MEDIA_EXTENSIONS.audio.some(ext => fileName.endsWith(ext))) {
+                                fileType = 'audio';
+                            } else if (MEDIA_EXTENSIONS.video.some(ext => fileName.endsWith(ext))) {
+                                fileType = 'video';
+                            }
+                            
+                            if (fileType && savedFileNames.has(fileName)) {
+                                try {
+                                    const file = await entry.getFile();
+                                    mediaFiles.push({
+                                        name: entry.name,
+                                        type: fileType,
+                                        fileObject: file,
+                                        size: formatFileSize(file.size),
+                                        selected: true
+                                    });
+                                    foundCount++;
+                                } catch (err) {
+                                    console.warn(`Não foi possível carregar ${entry.name}:`, err);
+                                }
+                            }
+                            
+                            processedCount++;
+                            if (processedCount % 10 === 0) {
+                                DOM.fileList.innerHTML = `
+                                    <div class="loading">
+                                        <div class="loading-spinner"></div>
+                                        <p>Escaneando pasta... ${processedCount} arquivos processados</p>
+                                        <p><small>${foundCount} arquivos encontrados dos ${savedFiles.length} salvos</small></p>
+                                    </div>
+                                `;
+                            }
+                        } else if (entry.kind === 'directory') {
+                            await scanRecursive(entry);
                         }
                     }
                 }
                 
-                // Atualizar progresso final
-                DOM.fileList.innerHTML = `
-                    <div class="loading">
-                        <div class="loading-spinner"></div>
-                        <p>Escaneando pasta... ${processedCount} arquivos processados</p>
-                        <p><small>${mediaEntries.length} arquivos de mídia encontrados</small></p>
-                    </div>
-                `;
-                
-                // Selecionar até 30 mídias aleatoriamente
-                let selectedEntries = mediaEntries;
-                if (selectedEntries.length > 30) {
-                    selectedEntries.sort(() => 0.5 - Math.random());
-                    selectedEntries = selectedEntries.slice(0, 30);
-                }
-                
-                // Carregar os arquivos selecionados
-                const mediaFiles = [];
-                for (const entry of selectedEntries) {
-                    try {
-                        const file = await entry.handle.getFile();
-                        mediaFiles.push({
-                            name: entry.name,
-                            type: entry.type,
-                            fileObject: file,
-                            size: formatFileSize(file.size),
-                            selected: true
-                        });
-                    } catch (err) {
-                        console.warn(`Não foi possível carregar ${entry.name}:`, err);
-                    }
-                }
+                await scanRecursive(directoryHandle);
                 
                 if (mediaFiles.length > 0) {
                     AppState.currentPlayingFiles = mediaFiles;
@@ -2354,10 +2339,13 @@
                     // Renderizar lista com checkboxes
                     renderPlaybackFileList();
                     
+                    if (mediaFiles.length < savedFiles.length) {
+                        alert(`Aviso: Apenas ${mediaFiles.length} dos ${savedFiles.length} arquivos salvos foram encontrados na pasta.`);
+                    }
                 } else {
                     DOM.fileList.innerHTML = `
                         <div class="status-message error">
-                            Nenhum arquivo de mídia encontrado na pasta raiz.
+                            Nenhum dos arquivos salvos foi encontrado nesta pasta. Verifique se selecionou a pasta correta.
                         </div>
                     `;
                 }
@@ -2365,7 +2353,7 @@
                 console.error('Erro ao carregar arquivos:', error);
                 DOM.fileList.innerHTML = `
                     <div class="status-message error">
-                        Erro ao carregar arquivos da pasta. Verifique permissões ou tente outra pasta.
+                        Erro ao carregar arquivos da pasta.
                     </div>
                 `;
             } finally {
