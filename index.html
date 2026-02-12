@@ -932,7 +932,7 @@
 
         .share-options {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 16px;
             margin-top: 20px;
         }
@@ -968,10 +968,36 @@
         .share-whatsapp { background: #25D366; color: white; }
         .share-copy { background: var(--primary); color: white; }
         .share-native { background: var(--secondary); color: white; }
+        .share-download { background: var(--success); color: white; }
+        .share-file { background: var(--accent); color: white; }
 
         .share-label {
             font-size: 12px;
             color: var(--text-muted);
+        }
+
+        .file-details {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .file-detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .file-detail-label {
+            color: var(--text-muted);
+        }
+
+        .file-detail-value {
+            color: var(--text);
+            font-weight: 500;
         }
 
         .web-viewer-modal .modal-content {
@@ -1311,7 +1337,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE COMPARTILHAMENTO DE ITEM -->
+    <!-- MODAL DE COMPARTILHAMENTO DE ITEM (DINÂMICO) -->
     <div class="modal" id="shareModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1322,20 +1348,23 @@
                 <div style="font-size: 14px; color: var(--text-muted);">Compartilhando:</div>
                 <div style="font-size: 16px; font-weight: 600; margin-top: 4px;" id="shareItemTitle">Título do Item</div>
             </div>
-            <div class="share-options">
-                <div class="share-option" onclick="shareViaWhatsApp()">
-                    <div class="share-icon share-whatsapp">💬</div>
-                    <span class="share-label">WhatsApp</span>
+            <!-- Detalhes do arquivo (exibido apenas para itens locais) -->
+            <div id="shareFileDetails" style="display: none;" class="file-details">
+                <div class="file-detail-row">
+                    <span class="file-detail-label">Nome do arquivo:</span>
+                    <span class="file-detail-value" id="shareFileName"></span>
                 </div>
-                <div class="share-option" onclick="copyLink()">
-                    <div class="share-icon share-copy">📋</div>
-                    <span class="share-label">Copiar Link</span>
+                <div class="file-detail-row">
+                    <span class="file-detail-label">Tipo:</span>
+                    <span class="file-detail-value" id="shareFileType"></span>
                 </div>
-                <div class="share-option" onclick="shareNative()">
-                    <div class="share-icon share-native">📱</div>
-                    <span class="share-label">Nativo</span>
+                <div class="file-detail-row">
+                    <span class="file-detail-label">Tamanho:</span>
+                    <span class="file-detail-value" id="shareFileSize"></span>
                 </div>
             </div>
+            <!-- Opções de compartilhamento (serão preenchidas dinamicamente) -->
+            <div class="share-options" id="shareOptions"></div>
         </div>
     </div>
 
@@ -1403,9 +1432,10 @@
             <div class="settings-group">
                 <label class="settings-label">Sobre</label>
                 <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6;">
-                    Armário de Mídias v3.0<br>
+                    Armário de Mídias v3.1<br>
                     Gerencie suas mídias favoritas.<br>
-                    Arquivos locais são armazenados permanentemente no navegador.
+                    Arquivos locais são armazenados permanentemente no navegador.<br>
+                    Agora com compartilhamento direto de arquivos!
                 </p>
             </div>
             <div class="settings-group">
@@ -1535,7 +1565,7 @@
             setupBackgroundPlayback();
         });
 
-        // ---------- CORREÇÃO: preservar links da web, remover só blob de locais ----------
+        // ---------- CARREGAR ITENS (PRESERVA LINKS DA WEB) ----------
         function loadItems() {
             try {
                 const stored = localStorage.getItem('mediaHub_items');
@@ -1546,7 +1576,7 @@
                         if (item.isLocal) {
                             item.url = null;
                         }
-                        // Itens da web mantêm sua URL
+                        // Itens da web mantêm a URL intacta
                     });
                 }
             } catch (e) {
@@ -1573,19 +1603,15 @@
             }
         }
 
-        // ---------- CORREÇÃO: preservar URL de itens da web, remover blob de locais ----------
+        // ---------- SALVAR ITENS (PRESERVA URL DE LINKS, REMOVE BLOB DE LOCAIS) ----------
         function saveItems() {
             try {
                 const itemsToSave = items.map(item => {
-                    // Cria cópia sem propriedades temporárias
                     const { url, blobUrl, ...rest } = item;
-                    
                     if (item.isLocal) {
-                        // Itens locais: não guardamos a URL (blob expira)
-                        return rest;
+                        return rest; // remove a URL blob
                     } else {
-                        // Itens da web: guardamos a URL permanentemente
-                        return { ...rest, url: item.url };
+                        return { ...rest, url: item.url }; // mantém a URL original
                     }
                 });
                 localStorage.setItem('mediaHub_items', JSON.stringify(itemsToSave));
@@ -2037,6 +2063,178 @@
             }
         }
 
+        // ==================== COMPARTILHAMENTO DE ARQUIVOS LOCAIS (NOVO) ====================
+        function showShareModal(itemId) {
+            shareItem = items.find(i => i.id === itemId);
+            if (!shareItem) { showToast('Item não encontrado', 'error'); return; }
+            
+            document.getElementById('shareItemTitle').textContent = shareItem.title;
+            
+            const fileDetailsDiv = document.getElementById('shareFileDetails');
+            const shareOptionsDiv = document.getElementById('shareOptions');
+            
+            if (shareItem.isLocal && shareItem.fileName) {
+                // É um arquivo local -> exibe detalhes e opções de compartilhamento de arquivo
+                fileDetailsDiv.style.display = 'block';
+                document.getElementById('shareFileName').textContent = shareItem.fileName || 'Desconhecido';
+                document.getElementById('shareFileType').textContent = shareItem.fileType || 'Desconhecido';
+                
+                // Formatar tamanho
+                let sizeText = 'Desconhecido';
+                if (shareItem.fileSize) {
+                    const bytes = shareItem.fileSize;
+                    if (bytes < 1024) sizeText = bytes + ' B';
+                    else if (bytes < 1048576) sizeText = (bytes / 1024).toFixed(1) + ' KB';
+                    else sizeText = (bytes / 1048576).toFixed(1) + ' MB';
+                }
+                document.getElementById('shareFileSize').textContent = sizeText;
+                
+                // Opções para arquivo local
+                shareOptionsDiv.innerHTML = `
+                    <div class="share-option" onclick="shareLocalFile()">
+                        <div class="share-icon share-file">📁</div>
+                        <span class="share-label">Compartilhar Arquivo</span>
+                    </div>
+                    <div class="share-option" onclick="downloadLocalFile()">
+                        <div class="share-icon share-download">⬇️</div>
+                        <span class="share-label">Download</span>
+                    </div>
+                `;
+            } else {
+                // É um link da web -> opções originais
+                fileDetailsDiv.style.display = 'none';
+                shareOptionsDiv.innerHTML = `
+                    <div class="share-option" onclick="shareViaWhatsApp()">
+                        <div class="share-icon share-whatsapp">💬</div>
+                        <span class="share-label">WhatsApp</span>
+                    </div>
+                    <div class="share-option" onclick="copyLink()">
+                        <div class="share-icon share-copy">📋</div>
+                        <span class="share-label">Copiar Link</span>
+                    </div>
+                    <div class="share-option" onclick="shareNative()">
+                        <div class="share-icon share-native">📱</div>
+                        <span class="share-label">Nativo</span>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('shareModal').classList.add('active');
+        }
+
+        // Compartilhar arquivo local via Web Share API (compatível com WhatsApp)
+        async function shareLocalFile() {
+            if (!shareItem || !shareItem.url) {
+                showToast('Arquivo não disponível', 'error');
+                return;
+            }
+            
+            try {
+                // Converte a blob URL em um arquivo para compartilhar
+                const response = await fetch(shareItem.url);
+                const blob = await response.blob();
+                const file = new File([blob], shareItem.fileName || 'arquivo', { type: shareItem.fileType || 'application/octet-stream' });
+                
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: shareItem.title,
+                        text: `Compartilhado do Armário de Mídias`
+                    });
+                    showToast('Arquivo compartilhado!');
+                } else {
+                    // Fallback: download
+                    downloadLocalFile();
+                    showToast('Compartilhamento nativo não suportado. O arquivo foi baixado.', 'warning');
+                }
+            } catch (error) {
+                console.error('Erro ao compartilhar arquivo:', error);
+                // Fallback: download
+                downloadLocalFile();
+                showToast('Erro ao compartilhar. O arquivo foi baixado.', 'error');
+            }
+            
+            closeModal('shareModal');
+        }
+
+        // Download do arquivo local
+        function downloadLocalFile() {
+            if (!shareItem || !shareItem.url) {
+                showToast('Arquivo não disponível', 'error');
+                return;
+            }
+            
+            const a = document.createElement('a');
+            a.href = shareItem.url;
+            a.download = shareItem.fileName || shareItem.title || 'download';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            showToast('Download iniciado!');
+            closeModal('shareModal');
+        }
+
+        // ==================== COMPARTILHAMENTO (LINKS DA WEB) ====================
+        function shareViaWhatsApp() {
+            if (!shareItem) return;
+            const text = `🎵 *${shareItem.title}*\n\n▶️ ${shareItem.url}\n\nVia Armário de Mídias`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+            closeModal('shareModal'); showToast('Abrindo WhatsApp...');
+        }
+
+        function copyLink() {
+            if (!shareItem) return;
+            navigator.clipboard.writeText(shareItem.url).then(() => {
+                showToast('Link copiado!'); closeModal('shareModal');
+            }).catch(() => showToast('Erro ao copiar link', 'error'));
+        }
+
+        function shareNative() {
+            if (!shareItem) return;
+            if (navigator.share) {
+                navigator.share({ title: shareItem.title, url: shareItem.url })
+                    .catch(() => showToast('Erro ao compartilhar', 'error'));
+            } else showToast('Compartilhamento nativo não suportado', 'error');
+        }
+
+        // ==================== COMPARTILHAMENTO DE CATEGORIA ====================
+        function showShareCategoryModal() { 
+            document.getElementById('shareCatModal').classList.add('active'); 
+        }
+
+        function shareCategoryViaWhatsApp() {
+            const category = document.getElementById('shareCategorySelect').value;
+            const categoryItems = items.filter(i => i.category === category);
+            if (categoryItems.length === 0) { showToast('Esta categoria está vazia!', 'error'); return; }
+            const labels = { music: '🎵 Músicas', video: '🎬 Vídeos', podcast: '🎙️ Podcasts', local: '📁 Arquivos' };
+            let text = `*${labels[category]} - Armário de Mídias*\n\n`;
+            categoryItems.forEach((item, index) => {
+                text += `${index + 1}. ${item.title}\n`;
+                if (!item.isLocal) text += `▶️ ${item.url}\n\n`;
+            });
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+            closeModal('shareCatModal'); showToast('Playlist enviada ao WhatsApp!');
+        }
+
+        function copyCategoryLinks() {
+            const category = document.getElementById('shareCategorySelect').value;
+            const categoryItems = items.filter(i => i.category === category && !i.isLocal);
+            if (categoryItems.length === 0) { showToast('Nenhum link para copiar nesta categoria!', 'error'); return; }
+            const text = categoryItems.map(i => `${i.title}: ${i.url}`).join('\n\n');
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Links copiados!'); closeModal('shareCatModal');
+            }).catch(() => showToast('Erro ao copiar links', 'error'));
+        }
+
+        // ==================== COMPARTILHAR LINK PÚBLICO DO APP ====================
+        function sharePublicLink() {
+            const url = 'https://robertsonsales.github.io/my_play/';
+            const text = `📱 Armário de Mídias - Sua biblioteca de mídias!\nAcesse: ${url}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+            showToast('Link do App compartilhado!');
+        }
+
         // ==================== BUSCA NA WEB (COPIA LINK) ====================
         function showSearchModal() {
             document.getElementById('searchModal').classList.add('active');
@@ -2099,69 +2297,6 @@
                     performWebSearch();
                 }
             }
-        }
-
-        // ==================== COMPARTILHAMENTO ====================
-        function showShareModal(itemId) {
-            shareItem = items.find(i => i.id === itemId);
-            if (!shareItem) { showToast('Item não encontrado', 'error'); return; }
-            document.getElementById('shareItemTitle').textContent = shareItem.title;
-            document.getElementById('shareModal').classList.add('active');
-        }
-
-        function showShareCategoryModal() { document.getElementById('shareCatModal').classList.add('active'); }
-
-        function shareViaWhatsApp() {
-            if (!shareItem) return;
-            const text = `🎵 *${shareItem.title}*\n\n▶️ ${shareItem.url}\n\nVia Armário de Mídias`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-            closeModal('shareModal'); showToast('Abrindo WhatsApp...');
-        }
-
-        function shareCategoryViaWhatsApp() {
-            const category = document.getElementById('shareCategorySelect').value;
-            const categoryItems = items.filter(i => i.category === category);
-            if (categoryItems.length === 0) { showToast('Esta categoria está vazia!', 'error'); return; }
-            const labels = { music: '🎵 Músicas', video: '🎬 Vídeos', podcast: '🎙️ Podcasts', local: '📁 Arquivos' };
-            let text = `*${labels[category]} - Armário de Mídias*\n\n`;
-            categoryItems.forEach((item, index) => {
-                text += `${index + 1}. ${item.title}\n`;
-                if (!item.isLocal) text += `▶️ ${item.url}\n\n`;
-            });
-            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-            closeModal('shareCatModal'); showToast('Playlist enviada ao WhatsApp!');
-        }
-
-        function copyLink() {
-            if (!shareItem) return;
-            navigator.clipboard.writeText(shareItem.url).then(() => {
-                showToast('Link copiado!'); closeModal('shareModal');
-            }).catch(() => showToast('Erro ao copiar link', 'error'));
-        }
-
-        function copyCategoryLinks() {
-            const category = document.getElementById('shareCategorySelect').value;
-            const categoryItems = items.filter(i => i.category === category && !i.isLocal);
-            if (categoryItems.length === 0) { showToast('Nenhum link para copiar nesta categoria!', 'error'); return; }
-            const text = categoryItems.map(i => `${i.title}: ${i.url}`).join('\n\n');
-            navigator.clipboard.writeText(text).then(() => {
-                showToast('Links copiados!'); closeModal('shareCatModal');
-            }).catch(() => showToast('Erro ao copiar links', 'error'));
-        }
-
-        function shareNative() {
-            if (!shareItem) return;
-            if (navigator.share) {
-                navigator.share({ title: shareItem.title, url: shareItem.url })
-                    .catch(() => showToast('Erro ao compartilhar', 'error'));
-            } else showToast('Compartilhamento nativo não suportado', 'error');
-        }
-
-        function sharePublicLink() {
-            const url = 'https://robertsonsales.github.io/my_play/';
-            const text = `📱 Armário de Mídias - Sua biblioteca de mídias!\nAcesse: ${url}`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-            showToast('Link do App compartilhado!');
         }
 
         // ==================== CONFIGURAÇÕES / TEMA ====================
