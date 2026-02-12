@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Armário de Mídias</title>
     <style>
-        /* ========== ESTILOS COMPLETOS (preservados) ========== */
+        /* ========== ESTILOS COMPLETOS ========== */
         * {
             margin: 0;
             padding: 0;
@@ -1138,7 +1138,7 @@
     </style>
 </head>
 <body>
-    <!-- TELA DE ENCERRAMENTO (inicialmente oculta) -->
+    <!-- TELA DE ENCERRAMENTO -->
     <div id="shutdownScreen" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center;">
         <div style="font-size: 64px; margin-bottom: 20px;">👋</div>
         <h1 style="margin-bottom: 16px; color: white;">Aplicação encerrada</h1>
@@ -1241,7 +1241,7 @@
         </nav>
     </div>
 
-    <!-- Modais (mantidos) -->
+    <!-- MODAL DE ADICIONAR/EDITAR -->
     <div class="modal" id="addModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1294,6 +1294,7 @@
         </div>
     </div>
 
+    <!-- MODAL DE BUSCA NA WEB -->
     <div class="modal" id="searchModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1310,6 +1311,7 @@
         </div>
     </div>
 
+    <!-- MODAL DE COMPARTILHAMENTO DE ITEM -->
     <div class="modal" id="shareModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1321,13 +1323,23 @@
                 <div style="font-size: 16px; font-weight: 600; margin-top: 4px;" id="shareItemTitle">Título do Item</div>
             </div>
             <div class="share-options">
-                <div class="share-option" onclick="shareViaWhatsApp()"><div class="share-icon share-whatsapp">💬</div><span class="share-label">WhatsApp</span></div>
-                <div class="share-option" onclick="copyLink()"><div class="share-icon share-copy">📋</div><span class="share-label">Copiar Link</span></div>
-                <div class="share-option" onclick="shareNative()"><div class="share-icon share-native">📱</div><span class="share-label">Nativo</span></div>
+                <div class="share-option" onclick="shareViaWhatsApp()">
+                    <div class="share-icon share-whatsapp">💬</div>
+                    <span class="share-label">WhatsApp</span>
+                </div>
+                <div class="share-option" onclick="copyLink()">
+                    <div class="share-icon share-copy">📋</div>
+                    <span class="share-label">Copiar Link</span>
+                </div>
+                <div class="share-option" onclick="shareNative()">
+                    <div class="share-icon share-native">📱</div>
+                    <span class="share-label">Nativo</span>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- MODAL DE COMPARTILHAMENTO DE CATEGORIA -->
     <div class="modal" id="shareCatModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1344,12 +1356,19 @@
                 </select>
             </div>
             <div class="share-options" style="margin-top: 20px;">
-                <div class="share-option" onclick="shareCategoryViaWhatsApp()"><div class="share-icon share-whatsapp">💬</div><span class="share-label">WhatsApp</span></div>
-                <div class="share-option" onclick="copyCategoryLinks()"><div class="share-icon share-copy">📋</div><span class="share-label">Copiar Lista</span></div>
+                <div class="share-option" onclick="shareCategoryViaWhatsApp()">
+                    <div class="share-icon share-whatsapp">💬</div>
+                    <span class="share-label">WhatsApp</span>
+                </div>
+                <div class="share-option" onclick="copyCategoryLinks()">
+                    <div class="share-icon share-copy">📋</div>
+                    <span class="share-label">Copiar Lista</span>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- MODAL DE VISUALIZAÇÃO WEB -->
     <div class="modal web-viewer-modal" id="webViewerModal">
         <div class="modal-content">
             <div class="web-viewer-header">
@@ -1359,11 +1378,15 @@
             <iframe class="web-viewer-frame" id="webViewerFrame" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-presentation"></iframe>
             <div class="web-viewer-open">
                 <button class="web-viewer-btn secondary" onclick="closeWebViewer()">Fechar</button>
-                <button class="web-viewer-btn" onclick="openInBrowser()"><span>🌐</span>Abrir no Navegador</button>
+                <button class="web-viewer-btn" onclick="openInBrowser()">
+                    <span>🌐</span>
+                    Abrir no Navegador
+                </button>
             </div>
         </div>
     </div>
 
+    <!-- MODAL DE CONFIGURAÇÕES -->
     <div class="modal" id="settingsModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1386,7 +1409,10 @@
                 </p>
             </div>
             <div class="settings-group">
-                <button class="exit-btn" onclick="exitApp()"><span>🚪</span>Encerrar Aplicação</button>
+                <button class="exit-btn" onclick="exitApp()">
+                    <span>🚪</span>
+                    Encerrar Aplicação
+                </button>
             </div>
         </div>
     </div>
@@ -1397,7 +1423,7 @@
     </div>
 
     <script>
-        // ==================== CONFIGURAÇÃO INDEXEDDB ====================
+        // ==================== CONFIGURAÇÃO DO INDEXEDDB ====================
         const DB_NAME = 'MediaHubDB';
         const DB_VERSION = 1;
         const STORE_NAME = 'files';
@@ -1426,7 +1452,13 @@
                 return new Promise((resolve, reject) => {
                     const transaction = db.transaction(STORE_NAME, 'readwrite');
                     const store = transaction.objectStore(STORE_NAME);
-                    const fileData = { id: fileId, name: file.name, type: file.type, size: file.size, data: file };
+                    const fileData = {
+                        id: fileId,
+                        name: file.name,
+                        type: file.type,
+                        size: file.size,
+                        data: file
+                    };
                     const request = store.put(fileData);
                     request.onsuccess = () => resolve(fileId);
                     request.onerror = () => reject(request.error);
@@ -1440,7 +1472,13 @@
                     const transaction = db.transaction(STORE_NAME, 'readonly');
                     const store = transaction.objectStore(STORE_NAME);
                     const request = store.get(fileId);
-                    request.onsuccess = () => request.result ? resolve(request.result.data) : reject('Arquivo não encontrado');
+                    request.onsuccess = () => {
+                        if (request.result) {
+                            resolve(request.result.data);
+                        } else {
+                            reject(new Error('Arquivo não encontrado'));
+                        }
+                    };
                     request.onerror = () => reject(request.error);
                 });
             });
@@ -1488,27 +1526,33 @@
 
         // ==================== INICIALIZAÇÃO ====================
         document.addEventListener('DOMContentLoaded', async () => {
-            await initApp();
-            setupEventListeners();
-            setupBackgroundPlayback(); // ativa reprodução em segundo plano
-        });
-
-        async function initApp() {
             await openDB();
             loadItems();
             await loadLocalFiles();
             renderItems();
             updateCategoryLabel();
-        }
+            setupEventListeners();
+            setupBackgroundPlayback();
+        });
 
+        // ---------- CORREÇÃO: preservar links da web, remover só blob de locais ----------
         function loadItems() {
             try {
                 const stored = localStorage.getItem('mediaHub_items');
                 if (stored) {
                     items = JSON.parse(stored);
-                    items.forEach(item => { if (item.isLocal) item.url = null; });
+                    // Apenas itens locais perdem a URL (será recriada via IndexedDB)
+                    items.forEach(item => {
+                        if (item.isLocal) {
+                            item.url = null;
+                        }
+                        // Itens da web mantêm sua URL
+                    });
                 }
-            } catch (e) { items = []; }
+            } catch (e) {
+                console.error('Erro ao carregar itens:', e);
+                items = [];
+            }
         }
 
         async function loadLocalFiles() {
@@ -1521,35 +1565,47 @@
                         item.fileName = file.name;
                         item.fileType = file.type;
                         item.fileSize = file.size;
-                    } catch (e) { item.url = null; }
+                    } catch (e) {
+                        console.error('Erro ao recuperar arquivo:', e);
+                        item.url = null;
+                    }
                 }
             }
         }
 
+        // ---------- CORREÇÃO: preservar URL de itens da web, remover blob de locais ----------
         function saveItems() {
             try {
-                const itemsToSave = items.map(({ url, blobUrl, ...rest }) => rest);
+                const itemsToSave = items.map(item => {
+                    // Cria cópia sem propriedades temporárias
+                    const { url, blobUrl, ...rest } = item;
+                    
+                    if (item.isLocal) {
+                        // Itens locais: não guardamos a URL (blob expira)
+                        return rest;
+                    } else {
+                        // Itens da web: guardamos a URL permanentemente
+                        return { ...rest, url: item.url };
+                    }
+                });
                 localStorage.setItem('mediaHub_items', JSON.stringify(itemsToSave));
-            } catch (e) { console.error('Erro ao salvar itens:', e); }
+            } catch (e) {
+                console.error('Erro ao salvar itens:', e);
+            }
         }
 
         // ==================== REPRODUÇÃO EM SEGUNDO PLANO ====================
         function setupBackgroundPlayback() {
-            // Impede que o navegador pause automaticamente o vídeo quando a aba fica em segundo plano
             document.addEventListener('visibilitychange', () => {
                 if (document.hidden && isPlaying && currentPlaying) {
-                    // Se está tocando e a aba foi ocultada, mantém a reprodução
                     const isVideo = currentPlaying.category === 'video' || currentPlaying.fileType?.startsWith('video/');
                     const player = isVideo ? videoPlayer : audioPlayer;
-                    // Tenta garantir que continue tocando (a maioria dos navegadores mantém áudio)
                     if (isVideo) {
-                        // Alguns navegadores pausam vídeos em segundo plano, então tentamos reiniciar
                         player.play().catch(() => {});
                     }
                 }
             });
 
-            // Media Session API para controles na tela de bloqueio
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.setActionHandler('play', () => togglePlay());
                 navigator.mediaSession.setActionHandler('pause', () => togglePlay());
@@ -1557,7 +1613,6 @@
                 navigator.mediaSession.setActionHandler('nexttrack', () => playNext());
             }
 
-            // Evita que o vídeo pause sozinho ao sair do foco
             videoPlayer.addEventListener('pause', () => {
                 if (document.hidden && isPlaying) {
                     videoPlayer.play().catch(() => {});
@@ -1565,43 +1620,104 @@
             });
         }
 
-        function playPrevious() {
-            if (isPlaylistActive && playlist.length > 0) {
-                playlistIndex = Math.max(0, playlistIndex - 1);
-                playCurrentPlaylistItem();
-            }
-        }
-
-        // ==================== ENCERRAR APLICAÇÃO (REAL) ====================
+        // ==================== ENCERRAR / REINICIAR (SEM PERDER DADOS) ====================
         function exitApp() {
-            // 1. Para toda reprodução
             stopPlayback();
-            
-            // 2. Oculta o container da aplicação
             appContainer.style.display = 'none';
-            
-            // 3. Exibe a tela de encerramento
             shutdownScreen.style.display = 'flex';
-            
-            // 4. Fecha quaisquer modais abertos
             document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
-            
-            // 5. Mensagem no console
-            console.log('Aplicação encerrada pelo usuário');
         }
 
         function restartApp() {
-            // 1. Oculta tela de encerramento
             shutdownScreen.style.display = 'none';
-            
-            // 2. Reexibe o container da aplicação
             appContainer.style.display = 'flex';
-            
-            // 3. Atualiza a interface
             renderItems();
-            
-            // 4. Mensagem de boas-vindas
             showToast('Bem-vindo de volta!', 'success');
+        }
+
+        // ==================== UI E CATEGORIAS ====================
+        function selectCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.category-card').forEach(card => {
+                card.classList.remove('active');
+                if (card.dataset.category === category) card.classList.add('active');
+            });
+            updateCategoryLabel();
+            renderItems();
+        }
+
+        function updateCategoryLabel() {
+            const labels = { music: 'Músicas', video: 'Vídeos', podcast: 'Podcasts', local: 'Arquivos Locais' };
+            document.getElementById('currentCatLabel').textContent = labels[currentCategory];
+            document.getElementById('itemCategory').value = currentCategory;
+        }
+
+        function renderItems() {
+            const filtered = items.filter(item => item.category === currentCategory);
+            
+            if (currentCategory === 'local' && filtered.length > 0) {
+                playAllContainer.style.display = 'block';
+                playAllContainer.innerHTML = `
+                    <button class="play-all-btn" onclick="playAllLocal()">
+                        <span>▶️</span>
+                        Reproduzir Tudo (${filtered.length} itens)
+                    </button>
+                `;
+            } else {
+                playAllContainer.style.display = 'none';
+            }
+            
+            if (filtered.length === 0) {
+                itemsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <div>Nenhum item nesta categoria</div>
+                        <div style="font-size: 13px; margin-top: 8px;">Adicione músicas, vídeos ou arquivos locais</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            itemsList.innerHTML = filtered.map(item => `
+                <div class="item-card ${currentPlaying?.id === item.id ? 'playing' : ''}" data-id="${item.id}">
+                    <div class="item-thumbnail" onclick="playItem('${item.id}')">
+                        ${item.thumbnail ? `<img src="${item.thumbnail}" alt="">` : getCategoryIcon(item.category)}
+                        <div class="play-icon-overlay">
+                            <div class="play-icon-btn">▶️</div>
+                        </div>
+                    </div>
+                    <div class="item-info" onclick="playItem('${item.id}')">
+                        <div class="item-title">${escapeHtml(item.title)}</div>
+                        <div class="item-meta">
+                            <span>${getCategoryIcon(item.category, true)}</span>
+                            <span>${formatDate(item.date)}</span>
+                            ${item.isLocal ? '<span>• Local</span>' : ''}
+                        </div>
+                    </div>
+                    <div class="item-actions">
+                        <button class="action-btn play" onclick="event.stopPropagation(); playItem('${item.id}')" title="Reproduzir">▶️</button>
+                        <button class="action-btn edit" onclick="event.stopPropagation(); editItem('${item.id}')" title="Editar">✏️</button>
+                        <button class="action-btn share" onclick="event.stopPropagation(); showShareModal('${item.id}')" title="Compartilhar">📤</button>
+                        <button class="action-btn delete" onclick="event.stopPropagation(); deleteItem('${item.id}')" title="Excluir">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function getCategoryIcon(category, small = false) {
+            const icons = { music: '🎵', video: '🎬', podcast: '🎙️', local: '📁' };
+            return small ? icons[category] : `<span style="font-size: 24px;">${icons[category]}</span>`;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
         }
 
         // ==================== REPRODUÇÃO ====================
@@ -1609,7 +1725,7 @@
             const item = items.find(i => i.id === id);
             if (!item) { showToast('Item não encontrado', 'error'); return; }
             if (!item.isLocal && !item.fileType) { openWebViewer(item); return; }
-            if (item.isLocal && !item.url) { showToast('Arquivo local não disponível', 'error'); return; }
+            if (item.isLocal && !item.url) { showToast('Arquivo local não disponível. Tente recarregar.', 'error'); return; }
             isPlaylistActive = false;
             playlist = [];
             playLocalMedia(item);
@@ -1619,10 +1735,11 @@
             stopPlayback();
             currentPlaying = item;
             isPlaying = true;
+            
             document.getElementById('playerBar').classList.add('active');
             document.getElementById('playerTitle').textContent = item.title;
             document.getElementById('playerThumb').textContent = getCategoryIcon(item.category, true);
-
+            
             if (item.category === 'video' || item.fileType?.startsWith('video/')) {
                 videoPlayer.src = item.url;
                 videoPlayer.style.display = 'block';
@@ -1631,6 +1748,7 @@
                 audioPlayer.src = item.url;
                 audioPlayer.play().catch(e => showToast('Erro ao reproduzir áudio', 'error'));
             }
+            
             updatePlayButton();
             renderItems();
         }
@@ -1662,6 +1780,13 @@
             }
         }
 
+        function playPrevious() {
+            if (isPlaylistActive && playlist.length > 0) {
+                playlistIndex = Math.max(0, playlistIndex - 1);
+                playCurrentPlaylistItem();
+            }
+        }
+
         function togglePlay() {
             if (!currentPlaying) return;
             const isVideo = currentPlaying.category === 'video' || currentPlaying.fileType?.startsWith('video/');
@@ -1688,7 +1813,8 @@
             const isVideo = currentPlaying?.category === 'video' || currentPlaying?.fileType?.startsWith('video/');
             const player = isVideo ? videoPlayer : audioPlayer;
             if (player.duration) {
-                document.getElementById('progressBar').style.width = (player.currentTime / player.duration) * 100 + '%';
+                const progress = (player.currentTime / player.duration) * 100;
+                document.getElementById('progressBar').style.width = progress + '%';
             }
         }
 
@@ -1735,71 +1861,6 @@
 
         function openInBrowser() { if (currentWebUrl) window.open(currentWebUrl, '_blank'); }
 
-        // ==================== UI / CATEGORIAS ====================
-        function selectCategory(category) {
-            currentCategory = category;
-            document.querySelectorAll('.category-card').forEach(card => {
-                card.classList.remove('active');
-                if (card.dataset.category === category) card.classList.add('active');
-            });
-            updateCategoryLabel();
-            renderItems();
-        }
-
-        function updateCategoryLabel() {
-            const labels = { music: 'Músicas', video: 'Vídeos', podcast: 'Podcasts', local: 'Arquivos Locais' };
-            document.getElementById('currentCatLabel').textContent = labels[currentCategory];
-            document.getElementById('itemCategory').value = currentCategory;
-        }
-
-        function renderItems() {
-            const filtered = items.filter(item => item.category === currentCategory);
-            if (currentCategory === 'local' && filtered.length > 0) {
-                playAllContainer.style.display = 'block';
-                playAllContainer.innerHTML = `<button class="play-all-btn" onclick="playAllLocal()"><span>▶️</span>Reproduzir Tudo (${filtered.length} itens)</button>`;
-            } else playAllContainer.style.display = 'none';
-
-            if (filtered.length === 0) {
-                itemsList.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><div>Nenhum item nesta categoria</div><div style="font-size: 13px; margin-top: 8px;">Adicione músicas, vídeos ou arquivos locais</div></div>`;
-                return;
-            }
-
-            itemsList.innerHTML = filtered.map(item => `
-                <div class="item-card ${currentPlaying?.id === item.id ? 'playing' : ''}" data-id="${item.id}">
-                    <div class="item-thumbnail" onclick="playItem('${item.id}')">
-                        ${item.thumbnail ? `<img src="${item.thumbnail}" alt="">` : getCategoryIcon(item.category)}
-                        <div class="play-icon-overlay"><div class="play-icon-btn">▶️</div></div>
-                    </div>
-                    <div class="item-info" onclick="playItem('${item.id}')">
-                        <div class="item-title">${escapeHtml(item.title)}</div>
-                        <div class="item-meta"><span>${getCategoryIcon(item.category, true)}</span><span>${formatDate(item.date)}</span>${item.isLocal ? '<span>• Local</span>' : ''}</div>
-                    </div>
-                    <div class="item-actions">
-                        <button class="action-btn play" onclick="event.stopPropagation(); playItem('${item.id}')" title="Reproduzir">▶️</button>
-                        <button class="action-btn edit" onclick="event.stopPropagation(); editItem('${item.id}')" title="Editar">✏️</button>
-                        <button class="action-btn share" onclick="event.stopPropagation(); showShareModal('${item.id}')" title="Compartilhar">📤</button>
-                        <button class="action-btn delete" onclick="event.stopPropagation(); deleteItem('${item.id}')" title="Excluir">🗑️</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function getCategoryIcon(category, small = false) {
-            const icons = { music: '🎵', video: '🎬', podcast: '🎙️', local: '📁' };
-            return small ? icons[category] : `<span style="font-size: 24px;">${icons[category]}</span>`;
-        }
-
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
-        }
-
         // ==================== ADICIONAR / EDITAR ====================
         function showAddModal() {
             editingItemId = null;
@@ -1817,6 +1878,7 @@
             editingItemId = id;
             document.getElementById('addModalTitle').textContent = 'Editar Item';
             document.getElementById('addItemBtn').textContent = 'Atualizar Item';
+            
             if (item.isLocal) {
                 document.getElementById('addType').value = 'local';
                 document.getElementById('addType').disabled = true;
@@ -1880,11 +1942,13 @@
             const category = document.getElementById('itemCategory').value;
             addItemBtn.disabled = true;
             addItemBtn.textContent = 'Processando...';
+            
             try {
                 if (editingItemId) {
                     const index = items.findIndex(i => i.id === editingItemId);
                     if (index === -1) throw new Error('Item não encontrado');
                     const oldItem = items[index];
+                    
                     if (type === 'link') {
                         const title = document.getElementById('itemTitle').value.trim();
                         const url = document.getElementById('itemUrl').value.trim();
@@ -1906,6 +1970,7 @@
                         date: new Date().toISOString(),
                         isLocal: type === 'local'
                     };
+                    
                     if (type === 'link') {
                         const title = document.getElementById('itemTitle').value.trim();
                         const url = document.getElementById('itemUrl').value.trim();
@@ -1928,6 +1993,7 @@
                     items.push(newItem);
                     showToast('Item adicionado com sucesso!');
                 }
+                
                 saveItems();
                 closeModal('addModal');
                 resetAddForm();
@@ -1955,6 +2021,7 @@
             const item = items.find(i => i.id === id);
             if (!item) { showToast('Item não encontrado', 'error'); return; }
             if (!confirm(`Tem certeza que deseja excluir "${item.title}"?`)) return;
+            
             try {
                 if (currentPlaying?.id === id) stopPlayback();
                 if (item.isLocal && item.fileKey) {
@@ -1976,21 +2043,27 @@
             document.getElementById('webSearchQuery').focus();
         }
 
-        function performWebSearch() {
+        async function performWebSearch() {
             const query = document.getElementById('webSearchQuery').value.trim();
             if (!query) return;
+            
             const resultsDiv = document.getElementById('searchResults');
             resultsDiv.innerHTML = '<div style="text-align: center; padding: 20px;"><div class="loading"></div></div>';
+            
             setTimeout(() => {
                 const mockResults = [
                     { title: `${query} - Official Video`, source: 'YouTube', thumbnail: 'https://via.placeholder.com/80x60/FF0000/FFFFFF?text=YT', url: `https://youtube.com/results?search_query=${encodeURIComponent(query)}` },
                     { title: `${query} - Áudio Oficial`, source: 'Spotify', thumbnail: 'https://via.placeholder.com/80x60/1DB954/FFFFFF?text=SP', url: `https://open.spotify.com/search/${encodeURIComponent(query)}` },
                     { title: `Podcast sobre ${query}`, source: 'Apple Podcasts', thumbnail: 'https://via.placeholder.com/80x60/9933FF/FFFFFF?text=PC', url: `https://podcasts.apple.com/search?term=${encodeURIComponent(query)}` }
                 ];
+                
                 resultsDiv.innerHTML = mockResults.map(result => `
                     <div class="result-item" onclick="copySearchResult('${escapeHtml(result.url)}', '${escapeHtml(result.title)}')">
                         <div class="result-thumb"><img src="${result.thumbnail}" alt=""></div>
-                        <div class="result-info"><div class="result-title">${escapeHtml(result.title)}</div><div class="result-source">${result.source}</div></div>
+                        <div class="result-info">
+                            <div class="result-title">${escapeHtml(result.title)}</div>
+                            <div class="result-source">${result.source}</div>
+                        </div>
                         <button class="action-btn" style="background: var(--success);" title="Copiar link">📋</button>
                     </div>
                 `).join('');
@@ -2007,7 +2080,8 @@
         // ==================== BUSCA LOCAL + SUGESTÃO WEB ====================
         function filterItems() {
             const query = document.getElementById('localSearch').value.toLowerCase().trim();
-            document.querySelectorAll('.item-card').forEach(card => {
+            const cards = document.querySelectorAll('.item-card');
+            cards.forEach(card => {
                 const title = card.querySelector('.item-title')?.textContent.toLowerCase() || '';
                 card.style.display = (query === '' || title.includes(query)) ? 'flex' : 'none';
             });
@@ -2017,11 +2091,13 @@
             filterItems();
             const query = document.getElementById('localSearch').value.trim();
             if (!query) return;
-            const visible = Array.from(document.querySelectorAll('.item-card')).filter(card => card.style.display !== 'none');
-            if (visible.length === 0 && confirm('Nenhum resultado na biblioteca. Deseja buscar na web?')) {
-                showSearchModal();
-                document.getElementById('webSearchQuery').value = query;
-                performWebSearch();
+            const visibleCards = Array.from(document.querySelectorAll('.item-card')).filter(card => card.style.display !== 'none');
+            if (visibleCards.length === 0) {
+                if (confirm('Nenhum resultado encontrado na sua biblioteca. Deseja buscar na web?')) {
+                    showSearchModal();
+                    document.getElementById('webSearchQuery').value = query;
+                    performWebSearch();
+                }
             }
         }
 
@@ -2044,33 +2120,33 @@
 
         function shareCategoryViaWhatsApp() {
             const category = document.getElementById('shareCategorySelect').value;
-            const catItems = items.filter(i => i.category === category);
-            if (catItems.length === 0) { showToast('Categoria vazia!', 'error'); return; }
+            const categoryItems = items.filter(i => i.category === category);
+            if (categoryItems.length === 0) { showToast('Esta categoria está vazia!', 'error'); return; }
             const labels = { music: '🎵 Músicas', video: '🎬 Vídeos', podcast: '🎙️ Podcasts', local: '📁 Arquivos' };
             let text = `*${labels[category]} - Armário de Mídias*\n\n`;
-            catItems.forEach((item, idx) => {
-                text += `${idx+1}. ${item.title}\n`;
+            categoryItems.forEach((item, index) => {
+                text += `${index + 1}. ${item.title}\n`;
                 if (!item.isLocal) text += `▶️ ${item.url}\n\n`;
             });
             window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-            closeModal('shareCatModal'); showToast('Playlist enviada!');
+            closeModal('shareCatModal'); showToast('Playlist enviada ao WhatsApp!');
         }
 
         function copyLink() {
             if (!shareItem) return;
             navigator.clipboard.writeText(shareItem.url).then(() => {
                 showToast('Link copiado!'); closeModal('shareModal');
-            }).catch(() => showToast('Erro ao copiar', 'error'));
+            }).catch(() => showToast('Erro ao copiar link', 'error'));
         }
 
         function copyCategoryLinks() {
             const category = document.getElementById('shareCategorySelect').value;
-            const catItems = items.filter(i => i.category === category && !i.isLocal);
-            if (catItems.length === 0) { showToast('Nenhum link para copiar', 'error'); return; }
-            const text = catItems.map(i => `${i.title}: ${i.url}`).join('\n\n');
+            const categoryItems = items.filter(i => i.category === category && !i.isLocal);
+            if (categoryItems.length === 0) { showToast('Nenhum link para copiar nesta categoria!', 'error'); return; }
+            const text = categoryItems.map(i => `${i.title}: ${i.url}`).join('\n\n');
             navigator.clipboard.writeText(text).then(() => {
                 showToast('Links copiados!'); closeModal('shareCatModal');
-            }).catch(() => showToast('Erro ao copiar', 'error'));
+            }).catch(() => showToast('Erro ao copiar links', 'error'));
         }
 
         function shareNative() {
@@ -2111,6 +2187,7 @@
                 updatePlayButton();
                 if (isPlaylistActive) playNext();
             });
+            
             videoPlayer.addEventListener('timeupdate', updateProgress);
             videoPlayer.addEventListener('ended', () => {
                 isPlaying = false;
@@ -2118,6 +2195,7 @@
                 closeVideoPlayer();
                 if (isPlaylistActive) playNext();
             });
+            
             videoPlayer.addEventListener('click', (e) => { if (e.target === videoPlayer) togglePlay(); });
 
             document.querySelectorAll('.modal').forEach(modal => {
@@ -2128,6 +2206,7 @@
                     }
                 });
             });
+
             document.getElementById('webSearchQuery')?.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') performWebSearch();
             });
