@@ -33,15 +33,48 @@
             --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             --shadow: 0 10px 30px rgba(0,0,0,0.3);
             --shadow-lg: 0 20px 40px rgba(0,0,0,0.4);
+            --bg: var(--dark);
+            --bg-secondary: rgba(26, 26, 46, 0.8);
+            --card-bg: var(--card);
+            --border-color: rgba(255,255,255,0.1);
+            --input-bg: rgba(0,0,0,0.2);
+        }
+
+        /* Tema claro */
+        body.light-theme {
+            --primary: #6c5ce7;
+            --primary-dark: #5b4cdb;
+            --secondary: #00b894;
+            --accent: #e84342;
+            --dark: #f5f6fa;
+            --darker: #ffffff;
+            --card: #dfe6e9;
+            --text: #2d3436;
+            --text-muted: #636e72;
+            --bg: #f5f6fa;
+            --bg-secondary: rgba(255,255,255,0.9);
+            --card-bg: #ffffff;
+            --border-color: rgba(0,0,0,0.1);
+            --input-bg: rgba(0,0,0,0.02);
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--dark);
+            background: var(--bg);
             color: var(--text);
             overflow-x: hidden;
             min-height: 100vh;
             position: relative;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body.exited::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            z-index: 999;
         }
 
         .bg-animation {
@@ -78,15 +111,21 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            background: rgba(26, 26, 46, 0.8);
+            background: var(--bg-secondary);
             backdrop-filter: blur(20px);
+            transition: filter 0.3s;
+        }
+
+        body.exited .app-container {
+            filter: blur(4px);
+            pointer-events: none;
         }
 
         .header {
             padding: 20px;
             background: rgba(15, 52, 96, 0.6);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid var(--border-color);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -155,8 +194,8 @@
             width: 100%;
             padding: 12px 45px 12px 15px;
             border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
             color: var(--text);
             font-size: 15px;
             outline: none;
@@ -187,6 +226,14 @@
 
         .categories-section {
             padding: 20px;
+            position: relative;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
         }
 
         .section-title {
@@ -194,8 +241,27 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             color: var(--text-muted);
-            margin-bottom: 12px;
             font-weight: 600;
+        }
+
+        .share-cat-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255,255,255,0.05);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 16px;
+        }
+
+        .share-cat-icon:hover {
+            background: var(--primary);
+            color: white;
         }
 
         .categories-grid {
@@ -213,7 +279,7 @@
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
             position: relative;
             overflow: hidden;
         }
@@ -258,7 +324,7 @@
             overflow-y: auto;
         }
 
-        .add-item-btn {
+        .add-item-btn, .play-all-btn {
             width: 100%;
             padding: 14px;
             margin-bottom: 20px;
@@ -276,9 +342,22 @@
             transition: all 0.3s ease;
         }
 
-        .add-item-btn:hover {
+        .add-item-btn:hover, .play-all-btn:hover {
             background: rgba(108, 92, 231, 0.2);
             border-color: var(--primary);
+        }
+
+        .play-all-btn {
+            border-style: solid;
+            background: rgba(0, 206, 201, 0.1);
+            border-color: rgba(0, 206, 201, 0.4);
+            color: var(--secondary);
+            margin-bottom: 12px;
+        }
+
+        .play-all-btn:hover {
+            background: rgba(0, 206, 201, 0.2);
+            border-color: var(--secondary);
         }
 
         .items-list {
@@ -288,7 +367,7 @@
         }
 
         .item-card {
-            background: var(--card);
+            background: var(--card-bg);
             border-radius: 16px;
             padding: 12px;
             display: flex;
@@ -296,7 +375,7 @@
             gap: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
             position: relative;
             overflow: hidden;
         }
@@ -390,6 +469,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            color: var(--text);
         }
 
         .item-meta {
@@ -433,6 +513,11 @@
             background: var(--success);
         }
 
+        .action-btn.edit:hover {
+            background: var(--warning);
+            color: black;
+        }
+
         .action-btn.play {
             background: var(--primary);
             color: white;
@@ -466,7 +551,7 @@
             backdrop-filter: blur(20px);
             border-radius: 20px;
             padding: 12px;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid var(--border-color);
             box-shadow: var(--shadow-lg);
             z-index: 90;
             display: none;
@@ -511,6 +596,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            color: white;
         }
 
         .player-progress {
@@ -563,7 +649,7 @@
             max-width: 480px;
             background: rgba(15, 52, 96, 0.95);
             backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255,255,255,0.05);
+            border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: space-around;
             padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
@@ -647,6 +733,7 @@
         .modal-title {
             font-size: 20px;
             font-weight: 700;
+            color: var(--text);
         }
 
         .close-btn {
@@ -679,8 +766,8 @@
             width: 100%;
             padding: 12px 16px;
             border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
             color: var(--text);
             font-size: 15px;
             outline: none;
@@ -772,7 +859,7 @@
             margin-bottom: 8px;
             cursor: pointer;
             transition: all 0.3s;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
         }
 
         .result-item:hover {
@@ -807,6 +894,7 @@
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            color: var(--text);
         }
 
         .result-source {
@@ -833,8 +921,8 @@
             top: 20px;
             left: 50%;
             transform: translateX(-50%) translateY(-100px);
-            background: var(--card);
-            color: white;
+            background: var(--card-bg);
+            color: var(--text);
             padding: 12px 24px;
             border-radius: 12px;
             box-shadow: var(--shadow-lg);
@@ -845,6 +933,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            border: 1px solid var(--border-color);
         }
 
         .toast.show {
@@ -870,7 +959,7 @@
             padding: 16px;
             border-radius: 16px;
             background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
             cursor: pointer;
             transition: all 0.3s;
         }
@@ -911,7 +1000,7 @@
         .web-viewer-header {
             padding: 16px 20px;
             background: rgba(15, 52, 96, 0.8);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             gap: 12px;
@@ -924,6 +1013,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            color: white;
         }
 
         .web-viewer-close {
@@ -950,7 +1040,7 @@
         .web-viewer-open {
             padding: 12px 20px;
             background: var(--card);
-            border-top: 1px solid rgba(255,255,255,0.1);
+            border-top: 1px solid var(--border-color);
             display: flex;
             gap: 12px;
         }
@@ -972,6 +1062,64 @@
 
         .web-viewer-btn.secondary {
             background: rgba(255,255,255,0.1);
+        }
+
+        .settings-group {
+            margin-bottom: 24px;
+        }
+
+        .settings-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .theme-options {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .theme-btn {
+            flex: 1;
+            min-width: 80px;
+            padding: 12px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            background: rgba(255,255,255,0.05);
+            color: var(--text);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .theme-btn.active {
+            border-color: var(--primary);
+            background: rgba(108, 92, 231, 0.2);
+        }
+
+        .exit-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            background: var(--danger);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .exit-btn:hover {
+            opacity: 0.9;
+            transform: scale(0.98);
         }
 
         @media (max-width: 480px) {
@@ -1019,13 +1167,16 @@
                 </div>
             </div>
             <div class="search-container">
-                <input type="text" class="search-bar" id="localSearch" placeholder="Buscar na sua biblioteca..." oninput="filterItems()">
-                <button class="search-btn">🔍</button>
+                <input type="text" class="search-bar" id="localSearch" placeholder="Buscar na sua biblioteca..." onkeyup="debouncedFilterItems()">
+                <button class="search-btn" onclick="filterItemsAndCheck()">🔍</button>
             </div>
         </header>
 
         <section class="categories-section">
-            <div class="section-title">Categorias</div>
+            <div class="section-header">
+                <div class="section-title">Categorias</div>
+                <button class="share-cat-icon" onclick="showShareCategoryModal()" title="Compartilhar categoria">📤</button>
+            </div>
             <div class="categories-grid">
                 <div class="category-card cat-music active" onclick="selectCategory('music')" data-category="music">
                     <div class="category-icon">🎵</div>
@@ -1052,6 +1203,8 @@
                 Adicionar à categoria <span id="currentCatLabel">Músicas</span>
             </button>
             
+            <div id="playAllContainer" style="display: none;"></div>
+            
             <div class="items-list" id="itemsList">
             </div>
         </main>
@@ -1068,6 +1221,7 @@
                 <div class="player-controls">
                     <button class="player-btn" onclick="togglePlay()" id="playBtn">▶️</button>
                     <button class="player-btn" onclick="stopPlayback()" style="background: var(--danger);">⏹️</button>
+                    <button class="player-btn" onclick="playNext()" style="background: var(--secondary);" title="Próximo">⏭️</button>
                 </div>
             </div>
             <audio id="audioPlayer" style="display: none;"></audio>
@@ -1083,27 +1237,28 @@
                 <span class="nav-icon">⭐</span>
                 <span class="nav-label">Favoritos</span>
             </button>
-            <button class="nav-item" onclick="showShareCategoryModal()">
+            <button class="nav-item" onclick="sharePublicLink()">
                 <span class="nav-icon">📤</span>
-                <span class="nav-label">Compartilhar</span>
+                <span class="nav-label">Compartilhar App</span>
             </button>
-            <button class="nav-item" onclick="showSection('settings')" data-section="settings">
+            <button class="nav-item" onclick="showSettingsModal()" data-section="settings">
                 <span class="nav-icon">⚙️</span>
                 <span class="nav-label">Ajustes</span>
             </button>
         </nav>
     </div>
 
+    <!-- Modal de Adicionar/Editar -->
     <div class="modal" id="addModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Adicionar Item</h2>
+                <h2 class="modal-title" id="addModalTitle">Adicionar Item</h2>
                 <button class="close-btn" onclick="closeModal('addModal')">✕</button>
             </div>
             
             <div class="form-group">
                 <label class="form-label">Tipo de Mídia</label>
-                <select class="form-select" id="addType" onchange="toggleAddInputs()">
+                <select class="form-select" id="addType" onchange="toggleAddInputs()" disabled>
                     <option value="link">Link da Web</option>
                     <option value="local">Arquivo Local</option>
                 </select>
@@ -1147,12 +1302,13 @@
                 </select>
             </div>
 
-            <button class="submit-btn" id="addItemBtn" onclick="addItem()">
+            <button class="submit-btn" id="addItemBtn" onclick="saveItem()">
                 Adicionar à Biblioteca
             </button>
         </div>
     </div>
 
+    <!-- Modal de Busca na Web -->
     <div class="modal" id="searchModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1172,6 +1328,7 @@
         </div>
     </div>
 
+    <!-- Modal de Compartilhamento de Item -->
     <div class="modal" id="shareModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1201,6 +1358,7 @@
         </div>
     </div>
 
+    <!-- Modal de Compartilhamento de Categoria -->
     <div class="modal" id="shareCatModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1231,6 +1389,7 @@
         </div>
     </div>
 
+    <!-- Modal de Visualização Web -->
     <div class="modal web-viewer-modal" id="webViewerModal">
         <div class="modal-content">
             <div class="web-viewer-header">
@@ -1248,13 +1407,146 @@
         </div>
     </div>
 
+    <!-- Modal de Configurações -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Configurações</h2>
+                <button class="close-btn" onclick="closeModal('settingsModal')">✕</button>
+            </div>
+            
+            <div class="settings-group">
+                <label class="settings-label">Tema</label>
+                <div class="theme-options">
+                    <button class="theme-btn active" onclick="setTheme('dark')" id="themeDark">🌙 Escuro</button>
+                    <button class="theme-btn" onclick="setTheme('light')" id="themeLight">☀️ Claro</button>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <label class="settings-label">Sobre</label>
+                <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6;">
+                    Armário de Mídias v2.0<br>
+                    Gerencie suas mídias favoritas.<br>
+                    Arquivos locais são armazenados permanentemente no navegador.
+                </p>
+            </div>
+
+            <div class="settings-group">
+                <button class="exit-btn" onclick="exitApp()">
+                    <span>🚪</span>
+                    Encerrar Aplicação
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Encerramento (não apaga dados) -->
+    <div class="modal" id="exitModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">🔚 Aplicação Encerrada</h2>
+                <button class="close-btn" onclick="restartApp()">✕</button>
+            </div>
+            <div style="text-align: center; padding: 20px 0;">
+                <div style="font-size: 64px; margin-bottom: 16px;">👋</div>
+                <p style="color: var(--text); font-size: 18px; margin-bottom: 8px;">Até logo!</p>
+                <p style="color: var(--text-muted); font-size: 14px;">
+                    Seus dados estão seguros.<br>
+                    Clique no botão abaixo para reiniciar.
+                </p>
+            </div>
+            <button class="submit-btn" onclick="restartApp()" style="background: var(--primary);">
+                🔄 Reiniciar Aplicação
+            </button>
+        </div>
+    </div>
+
     <div class="toast" id="toast">
         <span id="toastIcon">✓</span>
         <span id="toastMessage">Operação realizada!</span>
     </div>
 
     <script>
+        // ------------------------------
+        // Configuração do IndexedDB (armazenamento permanente de arquivos)
+        // ------------------------------
+        const DB_NAME = 'MediaHubDB';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'files';
+
+        let db = null;
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                if (db) return resolve(db);
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+                request.onupgradeneeded = (event) => {
+                    const d = event.target.result;
+                    if (!d.objectStoreNames.contains(STORE_NAME)) {
+                        d.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                    }
+                };
+            });
+        }
+
+        function saveFileToDB(fileId, file) {
+            return openDB().then(db => {
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction(STORE_NAME, 'readwrite');
+                    const store = transaction.objectStore(STORE_NAME);
+                    const fileData = {
+                        id: fileId,
+                        name: file.name,
+                        type: file.type,
+                        size: file.size,
+                        data: file
+                    };
+                    const request = store.put(fileData);
+                    request.onsuccess = () => resolve(fileId);
+                    request.onerror = () => reject(request.error);
+                });
+            });
+        }
+
+        function getFileFromDB(fileId) {
+            return openDB().then(db => {
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction(STORE_NAME, 'readonly');
+                    const store = transaction.objectStore(STORE_NAME);
+                    const request = store.get(fileId);
+                    request.onsuccess = () => {
+                        if (request.result) {
+                            resolve(request.result.data);
+                        } else {
+                            reject(new Error('Arquivo não encontrado'));
+                        }
+                    };
+                    request.onerror = () => reject(request.error);
+                });
+            });
+        }
+
+        function deleteFileFromDB(fileId) {
+            return openDB().then(db => {
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction(STORE_NAME, 'readwrite');
+                    const store = transaction.objectStore(STORE_NAME);
+                    const request = store.delete(fileId);
+                    request.onsuccess = () => resolve();
+                    request.onerror = () => reject(request.error);
+                });
+            });
+        }
+
+        // ------------------------------
         // Estado global
+        // ------------------------------
         let currentCategory = 'music';
         let currentSection = 'library';
         let items = [];
@@ -1263,69 +1555,53 @@
         let shareItem = null;
         let currentWebUrl = null;
         let selectedFile = null;
+        let editingItemId = null;
+        
+        // Playlist
+        let playlist = [];
+        let playlistIndex = -1;
+        let isPlaylistActive = false;
 
-        // Elementos do DOM
+        // Elementos DOM
         const audioPlayer = document.getElementById('audioPlayer');
         const videoPlayer = document.getElementById('videoPlayer');
         const itemsList = document.getElementById('itemsList');
         const addItemBtn = document.getElementById('addItemBtn');
+        const playAllContainer = document.getElementById('playAllContainer');
 
-        // Inicialização
-        document.addEventListener('DOMContentLoaded', () => {
-            loadItems();
-            renderItems();
-            updateCategoryLabel();
+        // Debounce para busca local
+        let searchTimeout;
+        function debouncedFilterItems() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                filterItems();
+            }, 400);
+        }
+
+        // ------------------------------
+        // Inicialização assíncrona
+        // ------------------------------
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initApp();
             setupEventListeners();
         });
 
-        function setupEventListeners() {
-            // Media players
-            audioPlayer.addEventListener('timeupdate', updateProgress);
-            audioPlayer.addEventListener('ended', () => {
-                isPlaying = false;
-                updatePlayButton();
-            });
-            
-            videoPlayer.addEventListener('timeupdate', updateProgress);
-            videoPlayer.addEventListener('ended', () => {
-                isPlaying = false;
-                updatePlayButton();
-                closeVideoPlayer();
-            });
-            
-            videoPlayer.addEventListener('click', (e) => {
-                if (e.target === videoPlayer) {
-                    togglePlay();
-                }
-            });
-
-            // Fechar modais ao clicar fora
-            document.querySelectorAll('.modal').forEach(modal => {
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) {
-                        if (modal.id === 'webViewerModal') {
-                            closeWebViewer();
-                        } else {
-                            closeModal(modal.id);
-                        }
-                    }
-                });
-            });
-
-            // Enter no campo de busca
-            document.getElementById('webSearchQuery')?.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') performWebSearch();
-            });
+        async function initApp() {
+            await openDB();
+            loadItems();
+            await loadLocalFiles();
+            renderItems();
+            updateCategoryLabel();
         }
 
-        // Carregar itens do localStorage
         function loadItems() {
             try {
                 const stored = localStorage.getItem('mediaHub_items');
                 if (stored) {
                     items = JSON.parse(stored);
-                    // Restaurar URLs de arquivos locais não é possível (blobs expiram),
-                    // mas mantemos os metadados
+                    items.forEach(item => {
+                        if (item.isLocal) item.url = null;
+                    });
                 }
             } catch (e) {
                 console.error('Erro ao carregar itens:', e);
@@ -1333,57 +1609,69 @@
             }
         }
 
-        // Salvar itens no localStorage
+        async function loadLocalFiles() {
+            for (let item of items) {
+                if (item.isLocal && item.fileKey) {
+                    try {
+                        const file = await getFileFromDB(item.fileKey);
+                        const url = URL.createObjectURL(file);
+                        item.url = url;
+                        item.fileName = file.name;
+                        item.fileType = file.type;
+                        item.fileSize = file.size;
+                    } catch (e) {
+                        console.error('Erro ao recuperar arquivo:', e);
+                        item.url = null;
+                    }
+                }
+            }
+        }
+
         function saveItems() {
             try {
-                // Não salvar URLs blob (são temporárias)
                 const itemsToSave = items.map(item => {
-                    if (item.isLocal && item.url && item.url.startsWith('blob:')) {
-                        return { 
-                            ...item, 
-                            url: null,
-                            blobUrl: item.url // Manter referência temporária na memória apenas
-                        };
-                    }
-                    return item;
+                    const { url, blobUrl, ...rest } = item;
+                    return rest;
                 });
                 localStorage.setItem('mediaHub_items', JSON.stringify(itemsToSave));
             } catch (e) {
                 console.error('Erro ao salvar itens:', e);
-                showToast('Erro ao salvar dados', 'error');
             }
         }
 
-        // Seleção de categoria
+        // ------------------------------
+        // UI e Categorias
+        // ------------------------------
         function selectCategory(category) {
             currentCategory = category;
-            
-            // Atualizar UI
             document.querySelectorAll('.category-card').forEach(card => {
                 card.classList.remove('active');
-                if (card.dataset.category === category) {
-                    card.classList.add('active');
-                }
+                if (card.dataset.category === category) card.classList.add('active');
             });
-            
             updateCategoryLabel();
             renderItems();
         }
 
         function updateCategoryLabel() {
-            const labels = {
-                music: 'Músicas',
-                video: 'Vídeos',
-                podcast: 'Podcasts',
-                local: 'Arquivos Locais'
-            };
+            const labels = { music: 'Músicas', video: 'Vídeos', podcast: 'Podcasts', local: 'Arquivos Locais' };
             document.getElementById('currentCatLabel').textContent = labels[currentCategory];
             document.getElementById('itemCategory').value = currentCategory;
         }
 
-        // Renderizar lista de itens
         function renderItems() {
             const filtered = items.filter(item => item.category === currentCategory);
+            
+            if (currentCategory === 'local' && filtered.length > 0) {
+                playAllContainer.style.display = 'block';
+                playAllContainer.innerHTML = `
+                    <button class="play-all-btn" onclick="playAllLocal()">
+                        <span>▶️</span>
+                        Reproduzir Tudo (${filtered.length} itens)
+                    </button>
+                `;
+            } else {
+                playAllContainer.style.display = 'none';
+            }
             
             if (filtered.length === 0) {
                 itemsList.innerHTML = `
@@ -1414,6 +1702,7 @@
                     </div>
                     <div class="item-actions">
                         <button class="action-btn play" onclick="event.stopPropagation(); playItem('${item.id}')" title="Reproduzir">▶️</button>
+                        <button class="action-btn edit" onclick="event.stopPropagation(); editItem('${item.id}')" title="Editar">✏️</button>
                         <button class="action-btn share" onclick="event.stopPropagation(); showShareModal('${item.id}')" title="Compartilhar">📤</button>
                         <button class="action-btn delete" onclick="event.stopPropagation(); deleteItem('${item.id}')" title="Excluir">🗑️</button>
                     </div>
@@ -1428,12 +1717,7 @@
         }
 
         function getCategoryIcon(category, small = false) {
-            const icons = {
-                music: '🎵',
-                video: '🎬',
-                podcast: '🎙️',
-                local: '📁'
-            };
+            const icons = { music: '🎵', video: '🎬', podcast: '🎙️', local: '📁' };
             return small ? icons[category] : `<span style="font-size: 24px;">${icons[category]}</span>`;
         }
 
@@ -1442,147 +1726,116 @@
             return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
         }
 
-        // Reprodução de itens
+        // ------------------------------
+        // Reprodução
+        // ------------------------------
         function playItem(id) {
             const item = items.find(i => i.id === id);
-            if (!item) {
-                showToast('Item não encontrado', 'error');
-                return;
-            }
-
-            // Se for link externo (não local), abrir no visualizador web
-            if (!item.isLocal && !item.fileType) {
-                openWebViewer(item);
-                return;
-            }
-
-            // Se for arquivo local mas não tiver URL válida (blob expirado)
-            if (item.isLocal && !item.url) {
-                showToast('Arquivo local expirado. Adicione novamente.', 'error');
-                return;
-            }
-
-            // Reproduzir arquivo local
+            if (!item) { showToast('Item não encontrado', 'error'); return; }
+            if (!item.isLocal && !item.fileType) { openWebViewer(item); return; }
+            if (item.isLocal && !item.url) { showToast('Arquivo local não disponível. Tente recarregar.', 'error'); return; }
+            
+            isPlaylistActive = false;
+            playlist = [];
             playLocalMedia(item);
         }
 
-        function openWebViewer(item) {
-            currentWebUrl = item.url;
-            document.getElementById('webViewerTitle').textContent = item.title;
-            const frame = document.getElementById('webViewerFrame');
-            
-            let embedUrl = item.url;
-            
-            // YouTube
-            if (item.url.includes('youtube.com') || item.url.includes('youtu.be')) {
-                const videoId = item.url.match(/(?:v=|\/)([\w-]{11})/)?.[1];
-                if (videoId) {
-                    embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-                }
-            }
-            // Vimeo
-            else if (item.url.includes('vimeo.com')) {
-                const videoId = item.url.match(/vimeo\.com\/(\d+)/)?.[1];
-                if (videoId) {
-                    embedUrl = `https://player.vimeo.com/video/${videoId}?autoplay=1`;
-                }
-            }
-            // Spotify
-            else if (item.url.includes('open.spotify.com')) {
-                embedUrl = item.url.replace('open.spotify.com', 'open.spotify.com/embed');
-            }
-            // SoundCloud
-            else if (item.url.includes('soundcloud.com')) {
-                embedUrl = `https://w.soundcloud.com/player/?url=${encodeURIComponent(item.url)}&auto_play=true`;
-            }
-            
-            frame.src = embedUrl;
-            document.getElementById('webViewerModal').classList.add('active');
-            
-            currentPlaying = item;
-            renderItems();
-        }
-
-        function closeWebViewer() {
-            const frame = document.getElementById('webViewerFrame');
-            frame.src = '';
-            document.getElementById('webViewerModal').classList.remove('active');
-            currentWebUrl = null;
-            currentPlaying = null;
-            renderItems();
-        }
-
-        function openInBrowser() {
-            if (currentWebUrl) {
-                window.open(currentWebUrl, '_blank');
-            }
-        }
-
         function playLocalMedia(item) {
-            // Parar reprodução atual
             stopPlayback();
-            
             currentPlaying = item;
             isPlaying = true;
             
-            // Atualizar player bar
             document.getElementById('playerBar').classList.add('active');
             document.getElementById('playerTitle').textContent = item.title;
             document.getElementById('playerThumb').textContent = getCategoryIcon(item.category, true);
             
-            // Carregar mídia
             if (item.category === 'video' || item.fileType?.startsWith('video/')) {
                 videoPlayer.src = item.url;
                 videoPlayer.style.display = 'block';
-                videoPlayer.play().catch(e => {
-                    console.error('Erro ao reproduzir vídeo:', e);
-                    showToast('Erro ao reproduzir vídeo', 'error');
-                });
+                videoPlayer.play().catch(e => { showToast('Erro ao reproduzir vídeo', 'error'); });
             } else {
                 audioPlayer.src = item.url;
-                audioPlayer.play().catch(e => {
-                    console.error('Erro ao reproduzir áudio:', e);
-                    showToast('Erro ao reproduzir áudio', 'error');
-                });
+                audioPlayer.play().catch(e => { showToast('Erro ao reproduzir áudio', 'error'); });
             }
             
             updatePlayButton();
             renderItems();
         }
 
+        function playAllLocal() {
+            const filtered = items.filter(item => item.category === 'local' && item.url);
+            if (filtered.length === 0) { showToast('Nenhum arquivo local disponível', 'error'); return; }
+            playlist = filtered;
+            playlistIndex = 0;
+            isPlaylistActive = true;
+            playCurrentPlaylistItem();
+        }
+
+        function playCurrentPlaylistItem() {
+            if (playlistIndex >= 0 && playlistIndex < playlist.length) {
+                playLocalMedia(playlist[playlistIndex]);
+            } else {
+                isPlaylistActive = false;
+                playlist = [];
+                stopPlayback();
+                showToast('Fim da playlist');
+            }
+        }
+
+        function playNext() {
+            if (isPlaylistActive && playlist.length > 0) {
+                playlistIndex++;
+                playCurrentPlaylistItem();
+            }
+        }
+
+        function setupEventListeners() {
+            audioPlayer.addEventListener('timeupdate', updateProgress);
+            audioPlayer.addEventListener('ended', () => {
+                isPlaying = false;
+                updatePlayButton();
+                if (isPlaylistActive) playNext();
+            });
+            
+            videoPlayer.addEventListener('timeupdate', updateProgress);
+            videoPlayer.addEventListener('ended', () => {
+                isPlaying = false;
+                updatePlayButton();
+                closeVideoPlayer();
+                if (isPlaylistActive) playNext();
+            });
+            
+            videoPlayer.addEventListener('click', (e) => { if (e.target === videoPlayer) togglePlay(); });
+
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        if (modal.id === 'webViewerModal') closeWebViewer();
+                        else closeModal(modal.id);
+                    }
+                });
+            });
+
+            document.getElementById('webSearchQuery')?.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') performWebSearch();
+            });
+        }
+
         function togglePlay() {
             if (!currentPlaying) return;
-            
             const isVideo = currentPlaying.category === 'video' || currentPlaying.fileType?.startsWith('video/');
             const player = isVideo ? videoPlayer : audioPlayer;
-            
-            if (isPlaying) {
-                player.pause();
-                isPlaying = false;
-            } else {
-                player.play();
-                isPlaying = true;
-            }
-            
+            if (isPlaying) { player.pause(); isPlaying = false; }
+            else { player.play(); isPlaying = true; }
             updatePlayButton();
         }
 
         function stopPlayback() {
-            audioPlayer.pause();
-            audioPlayer.src = '';
-            audioPlayer.currentTime = 0;
-            
-            videoPlayer.pause();
-            videoPlayer.src = '';
-            videoPlayer.currentTime = 0;
-            videoPlayer.style.display = 'none';
-            
-            isPlaying = false;
-            currentPlaying = null;
-            
+            audioPlayer.pause(); audioPlayer.src = ''; audioPlayer.currentTime = 0;
+            videoPlayer.pause(); videoPlayer.src = ''; videoPlayer.currentTime = 0; videoPlayer.style.display = 'none';
+            isPlaying = false; currentPlaying = null;
             document.getElementById('playerBar').classList.remove('active');
             document.getElementById('progressBar').style.width = '0%';
-            
             renderItems();
         }
 
@@ -1593,7 +1846,6 @@
         function updateProgress() {
             const isVideo = currentPlaying?.category === 'video' || currentPlaying?.fileType?.startsWith('video/');
             const player = isVideo ? videoPlayer : audioPlayer;
-            
             if (player.duration) {
                 const progress = (player.currentTime / player.duration) * 100;
                 document.getElementById('progressBar').style.width = progress + '%';
@@ -1602,150 +1854,87 @@
 
         function seek(event) {
             if (!currentPlaying) return;
-            
             const isVideo = currentPlaying.category === 'video' || currentPlaying.fileType?.startsWith('video/');
             const player = isVideo ? videoPlayer : audioPlayer;
-            
             const rect = event.currentTarget.getBoundingClientRect();
             const pos = (event.clientX - rect.left) / rect.width;
-            
-            if (player.duration) {
-                player.currentTime = pos * player.duration;
+            if (player.duration) player.currentTime = pos * player.duration;
+        }
+
+        function closeVideoPlayer() { videoPlayer.style.display = 'none'; }
+
+        function openWebViewer(item) {
+            currentWebUrl = item.url;
+            document.getElementById('webViewerTitle').textContent = item.title;
+            const frame = document.getElementById('webViewerFrame');
+            let embedUrl = item.url;
+            if (item.url.includes('youtube.com') || item.url.includes('youtu.be')) {
+                const videoId = item.url.match(/(?:v=|\/)([\w-]{11})/)?.[1];
+                if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+            } else if (item.url.includes('vimeo.com')) {
+                const videoId = item.url.match(/vimeo\.com\/(\d+)/)?.[1];
+                if (videoId) embedUrl = `https://player.vimeo.com/video/${videoId}?autoplay=1`;
+            } else if (item.url.includes('open.spotify.com')) {
+                embedUrl = item.url.replace('open.spotify.com', 'open.spotify.com/embed');
+            } else if (item.url.includes('soundcloud.com')) {
+                embedUrl = `https://w.soundcloud.com/player/?url=${encodeURIComponent(item.url)}&auto_play=true`;
             }
+            frame.src = embedUrl;
+            document.getElementById('webViewerModal').classList.add('active');
+            currentPlaying = item;
+            renderItems();
         }
 
-        function closeVideoPlayer() {
-            videoPlayer.style.display = 'none';
+        function closeWebViewer() {
+            document.getElementById('webViewerFrame').src = '';
+            document.getElementById('webViewerModal').classList.remove('active');
+            currentWebUrl = null;
+            currentPlaying = null;
+            renderItems();
         }
 
-        // Modal de adicionar
+        function openInBrowser() { if (currentWebUrl) window.open(currentWebUrl, '_blank'); }
+
+        // ------------------------------
+        // Adicionar / Editar Itens
+        // ------------------------------
         function showAddModal() {
-            // Resetar formulário
-            document.getElementById('addType').value = 'link';
-            toggleAddInputs();
-            document.getElementById('itemTitle').value = '';
-            document.getElementById('itemUrl').value = '';
-            document.getElementById('localFile').value = '';
-            document.getElementById('fileLabelText').textContent = 'Toque para selecionar MP3, MP4...';
-            document.getElementById('fileLabel').classList.remove('has-file');
-            document.getElementById('localTitle').value = '';
-            selectedFile = null;
-            
+            editingItemId = null;
+            document.getElementById('addModalTitle').textContent = 'Adicionar Item';
+            document.getElementById('addItemBtn').textContent = 'Adicionar à Biblioteca';
+            document.getElementById('addType').disabled = false;
+            resetAddForm();
             document.getElementById('itemCategory').value = currentCategory;
             document.getElementById('addModal').classList.add('active');
         }
 
-        function toggleAddInputs() {
-            const type = document.getElementById('addType').value;
-            document.getElementById('linkInputs').style.display = type === 'link' ? 'block' : 'none';
-            document.getElementById('localInputs').style.display = type === 'local' ? 'block' : 'none';
+        function editItem(id) {
+            const item = items.find(i => i.id === id);
+            if (!item) { showToast('Item não encontrado', 'error'); return; }
+            editingItemId = id;
+            document.getElementById('addModalTitle').textContent = 'Editar Item';
+            document.getElementById('addItemBtn').textContent = 'Atualizar Item';
             
-            if (type === 'local') {
-                document.getElementById('itemCategory').value = 'local';
-            }
-        }
-
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (file) {
-                selectedFile = file;
-                document.getElementById('fileLabelText').textContent = file.name;
+            if (item.isLocal) {
+                document.getElementById('addType').value = 'local';
+                document.getElementById('addType').disabled = true;
+                document.getElementById('linkInputs').style.display = 'none';
+                document.getElementById('localInputs').style.display = 'block';
+                document.getElementById('localTitle').value = item.title;
+                document.getElementById('localFile').disabled = true;
+                document.getElementById('fileLabelText').textContent = item.fileName || 'Arquivo local';
                 document.getElementById('fileLabel').classList.add('has-file');
-                
-                // Preencher título automaticamente se vazio
-                const titleInput = document.getElementById('localTitle');
-                if (!titleInput.value) {
-                    titleInput.value = file.name.replace(/\.[^/.]+$/, "");
-                }
-            } else {
                 selectedFile = null;
-                document.getElementById('fileLabelText').textContent = 'Toque para selecionar MP3, MP4...';
-                document.getElementById('fileLabel').classList.remove('has-file');
+            } else {
+                document.getElementById('addType').value = 'link';
+                document.getElementById('addType').disabled = true;
+                document.getElementById('linkInputs').style.display = 'block';
+                document.getElementById('localInputs').style.display = 'none';
+                document.getElementById('itemTitle').value = item.title;
+                document.getElementById('itemUrl').value = item.url;
             }
-        }
-
-        // Adicionar item - FUNÇÃO CORRIGIDA
-        async function addItem() {
-            const type = document.getElementById('addType').value;
-            const category = document.getElementById('itemCategory').value;
-            
-            // Desabilitar botão durante processamento
-            addItemBtn.disabled = true;
-            addItemBtn.textContent = 'Processando...';
-            
-            try {
-                let newItem = {
-                    id: Date.now().toString(),
-                    category: category,
-                    date: new Date().toISOString(),
-                    isLocal: type === 'local'
-                };
-                
-                if (type === 'link') {
-                    const title = document.getElementById('itemTitle').value.trim();
-                    const url = document.getElementById('itemUrl').value.trim();
-                    
-                    if (!title || !url) {
-                        showToast('Preencha todos os campos', 'error');
-                        return;
-                    }
-                    
-                    newItem.title = title;
-                    newItem.url = url;
-                    newItem.thumbnail = generateThumbnail(url);
-                } else {
-                    // Arquivo local
-                    if (!selectedFile) {
-                        showToast('Selecione um arquivo', 'error');
-                        return;
-                    }
-                    
-                    // Criar URL do blob
-                    const url = URL.createObjectURL(selectedFile);
-                    
-                    newItem.title = document.getElementById('localTitle').value.trim() || selectedFile.name;
-                    newItem.url = url;
-                    newItem.fileName = selectedFile.name;
-                    newItem.fileType = selectedFile.type;
-                    newItem.fileSize = selectedFile.size;
-                }
-                
-                // Adicionar ao array
-                items.push(newItem);
-                
-                // Salvar no localStorage
-                saveItems();
-                
-                // Feedback visual
-                showToast('Item adicionado com sucesso!');
-                
-                // Fechar modal e limpar formulário
-                closeModal('addModal');
-                resetAddForm();
-                
-                // Atualizar visualização
-                if (currentCategory === category) {
-                    renderItems();
-                } else {
-                    // Mudar para a categoria do item adicionado
-                    selectCategory(category);
-                    // Atualizar UI manualmente já que selectCategory espera evento
-                    document.querySelectorAll('.category-card').forEach(card => {
-                        card.classList.remove('active');
-                        if (card.dataset.category === category) {
-                            card.classList.add('active');
-                        }
-                    });
-                }
-                
-            } catch (error) {
-                console.error('Erro ao adicionar item:', error);
-                showToast('Erro ao adicionar item: ' + error.message, 'error');
-            } finally {
-                // Reabilitar botão
-                addItemBtn.disabled = false;
-                addItemBtn.textContent = 'Adicionar à Biblioteca';
-            }
+            document.getElementById('itemCategory').value = item.category;
+            document.getElementById('addModal').classList.add('active');
         }
 
         function resetAddForm() {
@@ -1756,8 +1945,102 @@
             document.getElementById('fileLabel').classList.remove('has-file');
             document.getElementById('localTitle').value = '';
             selectedFile = null;
+            document.getElementById('localFile').disabled = false;
+            document.getElementById('addType').disabled = false;
             document.getElementById('addType').value = 'link';
             toggleAddInputs();
+        }
+
+        function toggleAddInputs() {
+            const type = document.getElementById('addType').value;
+            document.getElementById('linkInputs').style.display = type === 'link' ? 'block' : 'none';
+            document.getElementById('localInputs').style.display = type === 'local' ? 'block' : 'none';
+            if (type === 'local') document.getElementById('itemCategory').value = 'local';
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedFile = file;
+                document.getElementById('fileLabelText').textContent = file.name;
+                document.getElementById('fileLabel').classList.add('has-file');
+                const titleInput = document.getElementById('localTitle');
+                if (!titleInput.value) titleInput.value = file.name.replace(/\.[^/.]+$/, "");
+            } else {
+                selectedFile = null;
+                document.getElementById('fileLabelText').textContent = 'Toque para selecionar MP3, MP4...';
+                document.getElementById('fileLabel').classList.remove('has-file');
+            }
+        }
+
+        async function saveItem() {
+            const type = document.getElementById('addType').value;
+            const category = document.getElementById('itemCategory').value;
+            addItemBtn.disabled = true;
+            addItemBtn.textContent = 'Processando...';
+            
+            try {
+                if (editingItemId) {
+                    const index = items.findIndex(i => i.id === editingItemId);
+                    if (index === -1) throw new Error('Item não encontrado');
+                    const oldItem = items[index];
+                    
+                    if (type === 'link') {
+                        const title = document.getElementById('itemTitle').value.trim();
+                        const url = document.getElementById('itemUrl').value.trim();
+                        if (!title || !url) throw new Error('Preencha todos os campos');
+                        oldItem.title = title;
+                        oldItem.url = url;
+                        oldItem.category = category;
+                        oldItem.thumbnail = generateThumbnail(url);
+                    } else {
+                        const title = document.getElementById('localTitle').value.trim() || oldItem.fileName;
+                        oldItem.title = title;
+                        oldItem.category = category;
+                    }
+                    showToast('Item atualizado com sucesso!');
+                } else {
+                    let newItem = {
+                        id: Date.now().toString(),
+                        category: category,
+                        date: new Date().toISOString(),
+                        isLocal: type === 'local'
+                    };
+                    
+                    if (type === 'link') {
+                        const title = document.getElementById('itemTitle').value.trim();
+                        const url = document.getElementById('itemUrl').value.trim();
+                        if (!title || !url) throw new Error('Preencha todos os campos');
+                        newItem.title = title;
+                        newItem.url = url;
+                        newItem.thumbnail = generateThumbnail(url);
+                    } else {
+                        if (!selectedFile) throw new Error('Selecione um arquivo');
+                        const fileId = newItem.id;
+                        await saveFileToDB(fileId, selectedFile);
+                        const url = URL.createObjectURL(selectedFile);
+                        newItem.title = document.getElementById('localTitle').value.trim() || selectedFile.name;
+                        newItem.url = url;
+                        newItem.fileKey = fileId;
+                        newItem.fileName = selectedFile.name;
+                        newItem.fileType = selectedFile.type;
+                        newItem.fileSize = selectedFile.size;
+                    }
+                    items.push(newItem);
+                    showToast('Item adicionado com sucesso!');
+                }
+                
+                saveItems();
+                closeModal('addModal');
+                resetAddForm();
+                if (currentCategory === category) renderItems();
+                else selectCategory(category);
+            } catch (error) {
+                showToast('Erro: ' + error.message, 'error');
+            } finally {
+                addItemBtn.disabled = false;
+                addItemBtn.textContent = editingItemId ? 'Atualizar Item' : 'Adicionar à Biblioteca';
+            }
         }
 
         function generateThumbnail(url) {
@@ -1765,59 +2048,36 @@
                 const videoId = url.match(/(?:v=|\/)([\w-]{11})/)?.[1];
                 if (videoId) return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
             }
-            if (url.includes('vimeo.com')) {
-                return 'https://via.placeholder.com/80x60/667eea/ffffff?text=Video';
-            }
+            if (url.includes('vimeo.com')) return 'https://via.placeholder.com/80x60/667eea/ffffff?text=Video';
             return null;
         }
 
-        // Excluir item - FUNÇÃO CORRIGIDA
-        function deleteItem(id) {
+        // ------------------------------
+        // Excluir item
+        // ------------------------------
+        async function deleteItem(id) {
             const item = items.find(i => i.id === id);
-            if (!item) {
-                showToast('Item não encontrado', 'error');
-                return;
-            }
-            
-            if (!confirm(`Tem certeza que deseja excluir "${item.title}"?`)) {
-                return;
-            }
+            if (!item) { showToast('Item não encontrado', 'error'); return; }
+            if (!confirm(`Tem certeza que deseja excluir "${item.title}"?`)) return;
             
             try {
-                // Parar se estiver reproduzindo
-                if (currentPlaying?.id === id) {
-                    stopPlayback();
+                if (currentPlaying?.id === id) stopPlayback();
+                if (item.isLocal && item.fileKey) {
+                    await deleteFileFromDB(item.fileKey);
+                    if (item.url?.startsWith('blob:')) URL.revokeObjectURL(item.url);
                 }
-                
-                // Revogar URL do blob se for arquivo local
-                if (item.isLocal && item.url && item.url.startsWith('blob:')) {
-                    URL.revokeObjectURL(item.url);
-                }
-                
-                // Remover do array
-                const initialLength = items.length;
                 items = items.filter(i => i.id !== id);
-                
-                if (items.length === initialLength) {
-                    showToast('Item não encontrado na lista', 'error');
-                    return;
-                }
-                
-                // Salvar alterações
                 saveItems();
-                
-                // Atualizar UI
                 renderItems();
-                
                 showToast('Item excluído com sucesso!');
-                
             } catch (error) {
-                console.error('Erro ao excluir item:', error);
-                showToast('Erro ao excluir item: ' + error.message, 'error');
+                showToast('Erro ao excluir: ' + error.message, 'error');
             }
         }
 
-        // Busca na web
+        // ------------------------------
+        // Busca na Web (cópia para área de transferência)
+        // ------------------------------
         function showSearchModal() {
             document.getElementById('searchModal').classList.add('active');
             document.getElementById('webSearchQuery').focus();
@@ -1832,198 +2092,177 @@
             
             setTimeout(() => {
                 const mockResults = [
-                    {
-                        title: `${query} - Official Video`,
-                        source: 'YouTube',
-                        thumbnail: 'https://via.placeholder.com/80x60/FF0000/FFFFFF?text=YT',
-                        url: `https://youtube.com/results?search_query=${encodeURIComponent(query)}`
-                    },
-                    {
-                        title: `${query} - Áudio Oficial`,
-                        source: 'Spotify',
-                        thumbnail: 'https://via.placeholder.com/80x60/1DB954/FFFFFF?text=SP',
-                        url: `https://open.spotify.com/search/${encodeURIComponent(query)}`
-                    },
-                    {
-                        title: `Podcast sobre ${query}`,
-                        source: 'Apple Podcasts',
-                        thumbnail: 'https://via.placeholder.com/80x60/9933FF/FFFFFF?text=PC',
-                        url: `https://podcasts.apple.com/search?term=${encodeURIComponent(query)}`
-                    }
+                    { title: `${query} - Official Video`, source: 'YouTube', thumbnail: 'https://via.placeholder.com/80x60/FF0000/FFFFFF?text=YT', url: `https://youtube.com/results?search_query=${encodeURIComponent(query)}` },
+                    { title: `${query} - Áudio Oficial`, source: 'Spotify', thumbnail: 'https://via.placeholder.com/80x60/1DB954/FFFFFF?text=SP', url: `https://open.spotify.com/search/${encodeURIComponent(query)}` },
+                    { title: `Podcast sobre ${query}`, source: 'Apple Podcasts', thumbnail: 'https://via.placeholder.com/80x60/9933FF/FFFFFF?text=PC', url: `https://podcasts.apple.com/search?term=${encodeURIComponent(query)}` }
                 ];
                 
                 resultsDiv.innerHTML = mockResults.map(result => `
-                    <div class="result-item" onclick="addFromSearch('${escapeHtml(result.title)}', '${result.url}')">
-                        <div class="result-thumb">
-                            <img src="${result.thumbnail}" alt="">
-                        </div>
+                    <div class="result-item" onclick="copySearchResult('${escapeHtml(result.url)}', '${escapeHtml(result.title)}')">
+                        <div class="result-thumb"><img src="${result.thumbnail}" alt=""></div>
                         <div class="result-info">
                             <div class="result-title">${escapeHtml(result.title)}</div>
                             <div class="result-source">${result.source}</div>
                         </div>
-                        <button class="action-btn" style="background: var(--success);">➕</button>
+                        <button class="action-btn" style="background: var(--success);" title="Copiar link">📋</button>
                     </div>
                 `).join('');
             }, 1000);
         }
 
-        function addFromSearch(title, url) {
-            document.getElementById('itemTitle').value = title;
-            document.getElementById('itemUrl').value = url;
-            closeModal('searchModal');
-            showAddModal();
-            showToast('Link preenchido! Verifique os dados e clique em Adicionar.');
+        function copySearchResult(url, title) {
+            navigator.clipboard.writeText(url).then(() => {
+                showToast(`Link copiado: ${title}`);
+                closeModal('searchModal');
+            }).catch(() => showToast('Erro ao copiar link', 'error'));
         }
 
+        // ------------------------------
+        // Busca local + sugestão web
+        // ------------------------------
+        function filterItems() {
+            const query = document.getElementById('localSearch').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.item-card');
+            cards.forEach(card => {
+                const title = card.querySelector('.item-title')?.textContent.toLowerCase() || '';
+                card.style.display = (query === '' || title.includes(query)) ? 'flex' : 'none';
+            });
+        }
+
+        function filterItemsAndCheck() {
+            filterItems();
+            const query = document.getElementById('localSearch').value.trim();
+            if (!query) return;
+            const visibleCards = Array.from(document.querySelectorAll('.item-card')).filter(card => card.style.display !== 'none');
+            if (visibleCards.length === 0) {
+                if (confirm('Nenhum resultado encontrado na sua biblioteca. Deseja buscar na web?')) {
+                    showSearchModal();
+                    document.getElementById('webSearchQuery').value = query;
+                    performWebSearch();
+                }
+            }
+        }
+
+        // ------------------------------
         // Compartilhamento
+        // ------------------------------
         function showShareModal(itemId) {
             shareItem = items.find(i => i.id === itemId);
-            if (!shareItem) {
-                showToast('Item não encontrado', 'error');
-                return;
-            }
-            
+            if (!shareItem) { showToast('Item não encontrado', 'error'); return; }
             document.getElementById('shareItemTitle').textContent = shareItem.title;
             document.getElementById('shareModal').classList.add('active');
         }
 
-        function showShareCategoryModal() {
-            document.getElementById('shareCatModal').classList.add('active');
-        }
+        function showShareCategoryModal() { document.getElementById('shareCatModal').classList.add('active'); }
 
         function shareViaWhatsApp() {
             if (!shareItem) return;
-            
-            const text = `🎵 *${shareItem.title}*\n\n▶️ ${shareItem.url}\n\nVia MediaHub`;
-            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
-            
-            window.open(whatsappUrl, '_blank');
-            closeModal('shareModal');
-            showToast('Abrindo WhatsApp...');
+            const text = `🎵 *${shareItem.title}*\n\n▶️ ${shareItem.url}\n\nVia Armário de Mídias`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+            closeModal('shareModal'); showToast('Abrindo WhatsApp...');
         }
 
         function shareCategoryViaWhatsApp() {
             const category = document.getElementById('shareCategorySelect').value;
             const categoryItems = items.filter(i => i.category === category);
-            
-            if (categoryItems.length === 0) {
-                showToast('Esta categoria está vazia!', 'error');
-                return;
-            }
-            
+            if (categoryItems.length === 0) { showToast('Esta categoria está vazia!', 'error'); return; }
             const labels = { music: '🎵 Músicas', video: '🎬 Vídeos', podcast: '🎙️ Podcasts', local: '📁 Arquivos' };
-            let text = `*${labels[category]} - MediaHub*\n\n`;
-            
+            let text = `*${labels[category]} - Armário de Mídias*\n\n`;
             categoryItems.forEach((item, index) => {
                 text += `${index + 1}. ${item.title}\n`;
                 if (!item.isLocal) text += `▶️ ${item.url}\n\n`;
             });
-            
-            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
-            window.open(whatsappUrl, '_blank');
-            closeModal('shareCatModal');
-            showToast('Playlist enviada ao WhatsApp!');
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+            closeModal('shareCatModal'); showToast('Playlist enviada ao WhatsApp!');
         }
 
         function copyLink() {
             if (!shareItem) return;
-            
             navigator.clipboard.writeText(shareItem.url).then(() => {
-                showToast('Link copiado para a área de transferência!');
-                closeModal('shareModal');
-            }).catch(() => {
-                showToast('Erro ao copiar link', 'error');
-            });
+                showToast('Link copiado!'); closeModal('shareModal');
+            }).catch(() => showToast('Erro ao copiar link', 'error'));
         }
 
         function copyCategoryLinks() {
             const category = document.getElementById('shareCategorySelect').value;
             const categoryItems = items.filter(i => i.category === category && !i.isLocal);
-            
-            if (categoryItems.length === 0) {
-                showToast('Nenhum link para copiar nesta categoria!', 'error');
-                return;
-            }
-            
+            if (categoryItems.length === 0) { showToast('Nenhum link para copiar!', 'error'); return; }
             const text = categoryItems.map(i => `${i.title}: ${i.url}`).join('\n\n');
-            
             navigator.clipboard.writeText(text).then(() => {
-                showToast('Links copiados para a área de transferência!');
-                closeModal('shareCatModal');
-            }).catch(() => {
-                showToast('Erro ao copiar links', 'error');
-            });
+                showToast('Links copiados!'); closeModal('shareCatModal');
+            }).catch(() => showToast('Erro ao copiar', 'error'));
         }
 
         function shareNative() {
             if (!shareItem) return;
-            
             if (navigator.share) {
-                navigator.share({
-                    title: shareItem.title,
-                    url: shareItem.url
-                }).catch(() => {
-                    showToast('Erro ao compartilhar', 'error');
-                });
-            } else {
-                showToast('Compartilhamento nativo não suportado neste dispositivo', 'error');
-            }
+                navigator.share({ title: shareItem.title, url: shareItem.url })
+                    .catch(() => showToast('Erro ao compartilhar', 'error'));
+            } else showToast('Compartilhamento nativo não suportado', 'error');
         }
 
-        // Filtro local
-        function filterItems() {
-            const query = document.getElementById('localSearch').value.toLowerCase().trim();
-            const cards = document.querySelectorAll('.item-card');
-            
-            cards.forEach(card => {
-                const title = card.querySelector('.item-title').textContent.toLowerCase();
-                if (query === '') {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = title.includes(query) ? 'flex' : 'none';
-                }
-            });
+        function sharePublicLink() {
+            const url = 'https://robertsonsales.github.io/my_play/';
+            const text = `📱 Armário de Mídias - Sua biblioteca de mídias!\nAcesse: ${url}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+            showToast('Link do App compartilhado!');
         }
 
-        // Toast notification
+        // ------------------------------
+        // Configurações / Tema / Encerramento (sem apagar dados)
+        // ------------------------------
+        function showSettingsModal() {
+            const currentTheme = document.body.classList.contains('light-theme') ? 'light' : 'dark';
+            document.getElementById('themeDark').classList.toggle('active', currentTheme === 'dark');
+            document.getElementById('themeLight').classList.toggle('active', currentTheme === 'light');
+            document.getElementById('settingsModal').classList.add('active');
+        }
+
+        function setTheme(theme) {
+            document.body.classList.toggle('light-theme', theme === 'light');
+            document.getElementById('themeDark').classList.toggle('active', theme === 'dark');
+            document.getElementById('themeLight').classList.toggle('active', theme === 'light');
+            showToast(`Tema ${theme === 'light' ? 'claro' : 'escuro'} ativado`);
+        }
+
+        // CORREÇÃO: exitApp agora apenas exibe o modal de encerramento, NÃO apaga dados
+        function exitApp() {
+            closeModal('settingsModal');
+            document.getElementById('exitModal').classList.add('active');
+            // Apenas um efeito visual de "desativar" a tela
+            document.body.classList.add('exited');
+        }
+
+        function restartApp() {
+            document.getElementById('exitModal').classList.remove('active');
+            document.body.classList.remove('exited');
+            showToast('Bem-vindo de volta!', 'success');
+        }
+
+        // ------------------------------
+        // Utilitários
+        // ------------------------------
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
-            const icon = type === 'success' ? '✓' : '✕';
-            
             document.getElementById('toastMessage').textContent = message;
-            document.getElementById('toastIcon').textContent = icon;
-            
+            document.getElementById('toastIcon').textContent = type === 'success' ? '✓' : '✕';
             toast.className = `toast ${type} show`;
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+            setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // Controle de modais
         function closeModal(modalId) {
             const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.classList.remove('active');
-            }
+            if (modal) modal.classList.remove('active');
         }
 
-        // Navegação
         function showSection(section) {
             currentSection = section;
-            
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
-                if (item.dataset.section === section) {
-                    item.classList.add('active');
-                }
+                if (item.dataset.section === section) item.classList.add('active');
             });
-            
-            if (section === 'favorites') {
-                showToast('Favoritos - Em desenvolvimento', 'error');
-            } else if (section === 'settings') {
-                showToast('Configurações - Em desenvolvimento', 'error');
-            }
+            if (section === 'favorites') showToast('Favoritos - Em desenvolvimento', 'error');
+            else if (section === 'settings') showSettingsModal();
         }
     </script>
 </body>
